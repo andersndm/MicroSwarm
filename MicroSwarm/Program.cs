@@ -1,4 +1,5 @@
 ﻿using MicroSwarm.FileSystem;
+using System.Diagnostics;
 
 namespace MicroSwarm
 {
@@ -23,6 +24,8 @@ namespace MicroSwarm
                     Console.Error.Write("Input Error: ");
                     Console.ResetColor();
                     Console.WriteLine(error);
+
+                    argParser.PrintError(error);
                 }
 
                 argParser.PrintUsage(programInvocation);
@@ -41,7 +44,51 @@ namespace MicroSwarm
             {
                 var currentDir = SwarmDir.CurrentDir;
                 Console.WriteLine("current dir: " + currentDir);
-                var outputDir = input.OutputDir == null ? currentDir : currentDir.GetDir(input.OutputDir);
+
+                if (input.Files.Count == 0)
+                {
+                    argParser.PrintError("No input files specified.");
+                    Environment.Exit(1);
+                }
+
+                List<SwarmFile> inputFiles = [];
+                foreach (var filename in input.Files)
+                {
+                    try
+                    {
+                        inputFiles.Add(currentDir.GetFile(filename));
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        argParser.PrintError("Input file not found: " + filename);
+                        Environment.Exit(1);
+                    }
+                    catch (FileNotFoundException)
+                    {
+                        argParser.PrintError("Input file not found: " + filename);
+                        Environment.Exit(1);
+                    }
+                }
+                Debug.Assert(inputFiles.Count > 0);
+
+                SwarmDir? outputDir = null;
+                if (input.OutputDir == null)
+                {
+                    outputDir = currentDir;
+                }
+                else
+                {
+                    try
+                    {
+                        outputDir = currentDir.GetDir(input.OutputDir);
+                    }
+                    catch (DirectoryNotFoundException)
+                    {
+                        argParser.PrintError("Invalid output directory: " + input.OutputDir);
+                        Environment.Exit(1);
+                    }
+                }
+                Debug.Assert(outputDir != null);
             }
         }
     }

@@ -72,30 +72,76 @@ namespace MicroSwarm.FileSystem
 
         public SwarmDir GetDir(string path)
         {
-            var dir = this;
-
-            string[] elements = path.Split(['/', '\\']);
-
-            if (elements[0] != ".")
+            if (Path.Exists(path))
             {
-                if (dir.GetRoot().Name != elements[0])
+                string[] elements = path.Split(['/', '\\']);
+                SwarmDir dir = GetPathRoot(elements[0]);
+                return GetDir(dir, elements[1..]);
+            }
+            else
+            {
+                throw new DirectoryNotFoundException("Invalid path: " + path);
+            }
+        }
+
+        public SwarmFile GetFile(string path)
+        {
+            string[] elements = path.Split(['/', '\\']);
+            if (elements.Length == 1)
+            {
+                return GetFiles().FirstOrDefault(f => f.Name == elements[0]) ??
+                    throw new FileNotFoundException(path);
+            }
+
+            if (Path.Exists(path))
+            {
+                string filename = elements.Last();
+                SwarmDir dir = GetPathRoot(elements[0]);
+                dir = GetDir(dir, elements[1..^1]);
+                return dir.GetFiles().FirstOrDefault(f => f.Name == filename) ??
+                    throw new FileNotFoundException(path);
+            }
+            else
+            {
+                throw new DirectoryNotFoundException("Invalid path: " + path);
+            }
+        }
+
+        private SwarmDir GetPathRoot(string pathStart)
+        {
+            if (pathStart == ".")
+            {
+                return this;
+            }
+            else if (pathStart == "..")
+            {
+                return _parent ??
+                    throw new DirectoryNotFoundException("Invalid path start: " + pathStart);
+            }
+            else
+            {
+                if (GetRoot().Name != pathStart)
                 {
-                    if (Path.Exists(elements[0]))
+                    if (Path.Exists(pathStart))
                     {
-                        dir = new SwarmDir(elements[0]);
+                        return new SwarmDir(pathStart);
                     }
                     else
                     {
-                        throw new DirectoryNotFoundException("Invalid path: " + path);
+                        throw new DirectoryNotFoundException("Invalid path start: " + pathStart);
                     }
                 }
                 else
                 {
-                    dir = GetRoot();
+                    return GetRoot();
                 }
             }
+        }
 
-            foreach (var element in elements[1..])
+        private static SwarmDir GetDir(SwarmDir start, string[] path)
+        {
+            var dir = start;
+            foreach (var element in path)
             {
                 if (element == "") { continue; }
                 else if (element == ".")
@@ -122,7 +168,7 @@ namespace MicroSwarm.FileSystem
         public IEnumerable<SwarmFile> GetFiles()
         {
             var files = Directory.EnumerateFiles(GetAbsolutePath());
-            return files.Select(f => new SwarmFile(f, this));
+            return files.Select(f => new SwarmFile(Path.GetFileName(f), this));
         }
 
         public IEnumerable<SwarmDir> GetChildren()

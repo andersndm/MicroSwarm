@@ -4,5 +4,8 @@ namespace MicroSwarm.FileSystem
     {
         protected string _name = name;
         protected SwarmDir _parent = dir;
+
+        public string Name { get => _name; }
+        public SwarmDir Parent { get => _parent; }
     }
 }
