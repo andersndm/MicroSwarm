@@ -1,11 +1,23 @@
 ﻿using Irony.Parsing;
 using Mss.Ast;
-using Mss.Resolver;
 
 namespace Mss.Parsing
 {
-    public static class MssParser
+    public class MssParser
     {
+        private readonly MssGrammar _grammar = new();
+        private readonly List<(string, MssError)> _errors = [];
+
+        public bool HasErrors { get => _errors.Count != 0; }
+
+        public void PrintErrors()
+        {
+            foreach (var (filename, error) in _errors)
+            {
+                PrintErrorWithLocation(filename, error.Location, error.Message);
+            }
+        }
+
         private static void PrintError(string message)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -37,29 +49,36 @@ namespace Mss.Parsing
             Console.WriteLine("): " + message);
         }
 
-        public static MssSpec? ParseMss(string filename, string mssSource)
+        public bool ValidateGrammar()
         {
-            var grammar = new MssGrammar();
-            var language = new LanguageData(grammar);
+            var language = new LanguageData(_grammar);
             if (language.Errors.Count > 0)
             {
                 foreach (var error in language.Errors.AsEnumerable())
                 {
                     PrintError("in grammar: " + error.ToString());
                 }
-                return null;
+                return false;
             }
-            var parser = new Parser(grammar);
+            return true;
+        }
+
+        public MssSpecNode? ParseMss(string filename, string mssSource)
+        {
+            var parser = new Parser(_grammar);
             var parseTree = parser.Parse(mssSource, filename);
             if (parseTree.HasErrors())
             {
                 foreach (var error in parseTree.ParserMessages)
                 {
-                    PrintErrorWithLocation(filename, error.Location, error.ToString());
+                    _errors.Add((filename, new(error.Message, error.Location)));
                 }
                 return null;
             }
 
+            return parseTree.Root.AstNode as MssSpecNode;
+
+            /*
             var resolver = new MssResolver();
             var root = parseTree.Root.AstNode as MssSpecNode ??
                 throw new InvalidCastException("Unable to cast the root node to MssSpecNode");
@@ -67,14 +86,15 @@ namespace Mss.Parsing
 
             if (resolver.Errors.Count != 0)
             {
-                foreach (var e in resolver.Errors)
+                foreach (var error in resolver.Errors)
                 {
-                    PrintErrorWithLocation(filename, e.Location, e.Message);
+                    _errors.Add((filename, error));
                 }
                 return null;
             }
 
             return resolver.GetSpec();
+            */
         }
     }
 }

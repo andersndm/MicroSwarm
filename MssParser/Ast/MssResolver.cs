@@ -1,4 +1,5 @@
 using Irony.Parsing;
+using Mss.Parsing;
 using Mss.Ast;
 using Mss.Ast.Visitor;
 using Mss.Types;
@@ -7,7 +8,7 @@ namespace Mss.Resolver
 {
     public class MssResolver : IMssAstVisitor
     {
-        public readonly List<MssResolverError> Errors = [];
+        public readonly List<MssError> Errors = [];
 
         private readonly MssInvalidType _invalidType = new();
         private readonly List<MssBuiltInType> _builtInTypes =

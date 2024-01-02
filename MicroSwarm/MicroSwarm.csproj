@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MicroSwarmFileSystem\MicroSwarmFileSystem.csproj" />
+    <ProjectReference Include="..\Mss\Mss.csproj" />
+    <ProjectReference Include="..\MssParser\MssParser.csproj" />
   </ItemGroup>
 
 </Project>

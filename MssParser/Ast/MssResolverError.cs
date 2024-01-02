@@ -1,8 +1,8 @@
 using Irony.Parsing;
 
-namespace Mss.Resolver
+namespace Mss.Parsing
 {
-    public class MssResolverError(string msg, SourceLocation loc)
+    public class MssError(string msg, SourceLocation loc)
     {
         public string Message { get; } = msg;
         public SourceLocation Location { get; set; } = loc;
