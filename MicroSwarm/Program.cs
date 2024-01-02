@@ -1,4 +1,6 @@
-﻿namespace MicroSwarm
+﻿using MicroSwarm.FileSystem;
+
+namespace MicroSwarm
 {
     internal sealed class Program
     {
@@ -39,7 +41,7 @@
             {
                 var currentDir = SwarmDir.CurrentDir;
                 Console.WriteLine("current dir: " + currentDir);
-                var outputDir = input.OutputDir == null ? currentDir : currentDir.GetRelativeDir(input.OutputDir);
+                var outputDir = input.OutputDir == null ? currentDir : currentDir.GetDir(input.OutputDir);
             }
         }
     }

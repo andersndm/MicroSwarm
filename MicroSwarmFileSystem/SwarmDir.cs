@@ -1,16 +1,13 @@
-namespace MicroSwarm
-{
-    public class SwarmFile(string name, SwarmDir dir)
-    {
-        private string _name = name;
-        private SwarmDir _parent = dir;
-    }
+using System.Text;
 
+namespace MicroSwarm.FileSystem
+{
     public class SwarmDir
     {
         private string _name;
         private SwarmDir? _parent = null;
-        private static string _separator = OperatingSystem.IsWindows() ? "\\" : "/";
+
+        private static readonly string _separator = OperatingSystem.IsWindows() ? "\\" : "/";
 
         public string Name { get => _name; }
         public SwarmDir? Parent { get => _parent; }
@@ -31,7 +28,7 @@ namespace MicroSwarm
             _parent = parent;
         }
 
-        private static SwarmDir GetCurrentDirectory()
+        public static SwarmDir GetCurrentDirectory()
         {
             string path = Directory.GetCurrentDirectory();
             var elements = path.Split(_separator);
@@ -43,37 +40,67 @@ namespace MicroSwarm
             return dir;
         }
 
+        public SwarmDir GetRoot()
+        {
+            if (IsRoot || _parent == null)
+            {
+                return this;
+            }
+
+            var parent = _parent;
+            while (parent.Parent != null && !parent.IsRoot)
+            {
+                parent = parent.Parent;
+            }
+            return parent;
+        }
+
         public string GetAbsolutePath()
         {
-            string path = _name;
+            StringBuilder builder = new();
+            builder.Append(_name);
+            builder.Append(_separator);
             SwarmDir? parent = _parent;
             while (parent != null)
             {
-                path = parent.Name + _separator + path;
+                builder.Insert(0, _separator);
+                builder.Insert(0, parent.Name);
                 parent = parent.Parent;
             }
-            return path;
+            return builder.ToString();
         }
 
-        public string GetRelativePath()
-        {
-            return GetRelativePath(CurrentDir);
-        }
-
-        public string GetRelativePath(SwarmDir dir)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SwarmDir GetRelativeDir(string path)
+        public SwarmDir GetDir(string path)
         {
             var dir = this;
-            foreach (var element in path.Split(['/', '\\']))
+
+            string[] elements = path.Split(['/', '\\']);
+
+            if (elements[0] != ".")
+            {
+                if (dir.GetRoot().Name != elements[0])
+                {
+                    if (Path.Exists(elements[0]))
+                    {
+                        dir = new SwarmDir(elements[0]);
+                    }
+                    else
+                    {
+                        throw new DirectoryNotFoundException("Invalid path: " + path);
+                    }
+                }
+                else
+                {
+                    dir = GetRoot();
+                }
+            }
+
+            foreach (var element in elements[1..])
             {
                 if (element == "") { continue; }
                 else if (element == ".")
                 {
-                    dir = GetCurrentDirectory();
+                    throw new DirectoryNotFoundException("Unexpected '.' in path: " + path);
                 }
                 else if (element == "..")
                 {
@@ -92,7 +119,7 @@ namespace MicroSwarm
             return dir;
         }
 
-        public IEnumerable<SwarmFile> GetFileNames()
+        public IEnumerable<SwarmFile> GetFiles()
         {
             var files = Directory.EnumerateFiles(GetAbsolutePath());
             return files.Select(f => new SwarmFile(f, this));

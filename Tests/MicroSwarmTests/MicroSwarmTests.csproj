@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\MicroSwarm\MicroSwarm.csproj" />
+    <ProjectReference Include="..\..\MicroSwarmFileSystem\MicroSwarmFileSystem.csproj" />
   </ItemGroup>
 
   <ItemGroup>

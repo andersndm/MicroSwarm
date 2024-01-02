@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8DE1FE86
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSwarmTests", "Tests\MicroSwarmTests\MicroSwarmTests.csproj", "{5D696D9C-B8D1-4B99-B01E-E4B5DC532704}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSwarmFileSystem", "MicroSwarmFileSystem\MicroSwarmFileSystem.csproj", "{960A52BC-21B3-4228-8A5F-9C74F15FCB82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,10 @@ Global
 		{5D696D9C-B8D1-4B99-B01E-E4B5DC532704}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D696D9C-B8D1-4B99-B01E-E4B5DC532704}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D696D9C-B8D1-4B99-B01E-E4B5DC532704}.Release|Any CPU.Build.0 = Release|Any CPU
+		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
