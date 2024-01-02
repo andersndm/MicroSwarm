@@ -1,12 +1,27 @@
 using Mss;
 using Mss.Ast;
 using Mss.Resolver;
+using System.Diagnostics;
 
 namespace MicroSwarm.TaskHandlers
 {
     public class MssResolveHandler(ITaskHandler<MssSpec> next)
         : TaskHandler<IEnumerable<MssSpecNode>, MssSpec>(next)
     {
+        private static MssSpec? MergeSpecs(IEnumerable<MssSpec> specs)
+        {
+            Debug.Assert(specs.Any());
+            var master = specs.First();
+            foreach (var spec in specs.ToArray()[1..])
+            {
+                if (!master.Merge(spec))
+                {
+                    return null;
+                }
+            }
+            return master;
+        }
+
         public override IResult Handle(IEnumerable<MssSpecNode> input)
         {
             if (!input.Any())
@@ -19,6 +34,7 @@ namespace MicroSwarm.TaskHandlers
             int resolverIndex = 0;
             foreach (var node in input)
             {
+                resolvers[resolverIndex] = new(node.Filename);
                 tasks.Add(Task.Run(() => node.Accept(resolvers[resolverIndex])));
                 ++resolverIndex;
             }
@@ -42,24 +58,16 @@ namespace MicroSwarm.TaskHandlers
             {
                 return IResult.BadResult("Errors found while resolving");
             }
-            return IResult.OkResult("");
-            /*
-            var resolver = new MssResolver();
-            var root = parseTree.Root.AstNode as MssSpecNode ??
-                throw new InvalidCastException("Unable to cast the root node to MssSpecNode");
-            root.Accept(resolver);
 
-            if (resolver.Errors.Count != 0)
+            var output = MergeSpecs(resolvers.Select(r => r.GetSpec()));
+            if (output != null)
             {
-                foreach (var error in resolver.Errors)
-                {
-                    _errors.Add((filename, error));
-                }
-                return null;
+                return _next.Handle(output);
             }
-
-            return resolver.GetSpec();
-            */
+            else
+            {
+                return IResult.BadResult("Unable to merge specs");
+            }
         }
     }
 }

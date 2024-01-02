@@ -48,13 +48,7 @@ namespace MicroSwarm.TaskHandlers
                 return IResult.BadResult("Parsing had errors.");
             }
 
-            List<MssSpecNode> output = [];
-            foreach (var task in tasks)
-            {
-                output.Add(task.Result!);
-            }
-
-            return _next.Handle(output);
+            return _next.Handle(tasks.Select(t => t.Result!));
         }
     }
 }

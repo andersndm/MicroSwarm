@@ -54,7 +54,7 @@ namespace Mss.Resolver
             types.AddRange(_classTypes);
             types.AddRange(_externTypes);
             types.AddRange(_listTypes);
-            return new MssSpec(types, _services);
+            return new MssSpec(types, _services, _filename);
         }
 
         private string VerifyName(string name, SourceLocation location,
