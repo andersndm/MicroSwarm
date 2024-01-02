@@ -58,7 +58,7 @@ namespace MicroSwarm
             base.PrintOptions();
         }
 
-        public void PrintError(string error)
+        public static void PrintError(string error)
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.Write("Input Error: ");
