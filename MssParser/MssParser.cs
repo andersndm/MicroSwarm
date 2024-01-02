@@ -46,7 +46,12 @@ namespace Mss.Parsing
                 return null;
             }
 
-            return parseTree.Root.AstNode as MssSpecNode;
+            var result = parseTree.Root.AstNode as MssSpecNode;
+            if (result != null)
+            {
+                result.Filename = filename;
+            }
+            return result;
         }
     }
 }
