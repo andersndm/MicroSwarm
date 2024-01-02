@@ -57,5 +57,13 @@ namespace MicroSwarm
             Console.WriteLine("Usage: " + invocation + " -- [options] <input file(s)>\n");
             base.PrintOptions();
         }
+
+        public static void PrintError(string error)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.Write("Input Error: ");
+            Console.ResetColor();
+            Console.WriteLine(error);
+        }
     }
 }
