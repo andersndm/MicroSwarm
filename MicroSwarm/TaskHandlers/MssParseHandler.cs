@@ -35,7 +35,10 @@ namespace MicroSwarm.TaskHandlers
             {
                 if (parser.HasErrors)
                 {
-                    parser.PrintErrors();
+                    foreach (var error in parser.Errors)
+                    {
+                        error.Print();
+                    }
                     errorsFound = true;
                 }
             }
