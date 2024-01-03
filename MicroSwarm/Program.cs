@@ -1,6 +1,7 @@
 ﻿using MicroSwarm.FileSystem;
 using MicroSwarm.Pipeline;
 using System.Diagnostics;
+using System.Reflection.Metadata.Ecma335;
 
 namespace MicroSwarm
 {
@@ -10,12 +11,12 @@ namespace MicroSwarm
         private const string MINOR_VERSION = "1";
         private const string PATCH_VERSION = "0";
 
-        public static IEnumerable<SwarmFile> GetInputFiles(IEnumerable<string> inputFiles, SwarmDir currentDir)
+        public static IEnumerable<SwarmFile>? GetInputFiles(IEnumerable<string> inputFiles, SwarmDir currentDir)
         {
             if (!inputFiles.Any())
             {
                 SwarmArgParser.PrintError("No input files specified.");
-                Environment.Exit(1);
+                return null;
             }
 
             List<SwarmFile> result = [];
@@ -28,42 +29,39 @@ namespace MicroSwarm
                 catch (DirectoryNotFoundException)
                 {
                     SwarmArgParser.PrintError("Input file not found: " + filename);
-                    Environment.Exit(1);
+                    return null;
                 }
                 catch (FileNotFoundException)
                 {
                     SwarmArgParser.PrintError("Input file not found: " + filename);
-                    Environment.Exit(1);
+                    return null;
                 }
             }
             Debug.Assert(result.Count > 0);
             return result;
         }
 
-        public static SwarmDir GetOutputDir(string? outputPath, SwarmDir currentDir)
+        public static SwarmDir? GetOutputDir(string? outputPath, SwarmDir currentDir)
         {
-            SwarmDir? result = null;
             if (outputPath == null)
             {
-                result = currentDir;
+                return currentDir;
             }
             else
             {
                 try
                 {
-                    result = currentDir.GetDir(outputPath);
+                    return currentDir.GetDir(outputPath);
                 }
                 catch (DirectoryNotFoundException)
                 {
                     SwarmArgParser.PrintError("Invalid output directory: " + outputPath);
-                    Environment.Exit(1);
+                    return null;
                 }
             }
-            Debug.Assert(result != null);
-            return result;
         }
 
-        public static void Main(string[] args)
+        public static int CMain(string[] args)
         {
             string programInvocation = "dotnet run";
 
@@ -78,7 +76,7 @@ namespace MicroSwarm
                 }
 
                 argParser.PrintUsage(programInvocation);
-                Environment.Exit(1);
+                return 1;
             }
 
             if (input.HelpRequested)
@@ -93,8 +91,17 @@ namespace MicroSwarm
             {
                 var currentDir = SwarmDir.CurrentDir;
 
-                IEnumerable<SwarmFile> inputFiles = GetInputFiles(input.Files, currentDir);
-                SwarmDir outputDir = GetOutputDir(input.OutputDir, currentDir);
+                IEnumerable<SwarmFile>? inputFiles = GetInputFiles(input.Files, currentDir);
+                if (inputFiles == null)
+                {
+                    return 1;
+                }
+                SwarmDir? outputDir = GetOutputDir(input.OutputDir, currentDir);
+                if (outputDir == null)
+                {
+                    return 1;
+                }
+
 
                 var pipeline = input.ToPuml switch
                 {
@@ -106,9 +113,17 @@ namespace MicroSwarm
                 if (!result.Ok)
                 {
                     Console.WriteLine("Bad result: " + result.Value);
-                    Environment.Exit(1);
+                    return 1;
                 }
             }
+
+            return 0;
+        }
+
+        public static void Main(string[] args)
+        {
+            var returnValue = CMain(args);
+            Environment.Exit(returnValue);
         }
     }
 }
