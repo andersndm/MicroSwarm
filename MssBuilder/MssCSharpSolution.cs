@@ -40,16 +40,7 @@ namespace MssBuilder
             foreach (var project in projects)
             {
                 builder.AppendLine(@$"Project(""{{{project.TypeGuid}}}"") = ""{project.Name}"", ""{project.Name}\{project.Name}.csproj"", ""{{{project.Id}}}""");
-                if (project.Dependencies.Any())
-                {
-                    builder.AppendLine("    ProjectSection(ProjectDependencies) = postProject");
-                    foreach (string projectName in project.Dependencies)
-                    {
-                        Guid dependencyId = projects.Where(p => p.Name == projectName).Select(p => p.Id).FirstOrDefault()!;
-                        builder.AppendLine($"{{{project.Id}}} = {{{dependencyId}}}");
-                    }
-                    builder.AppendLine("    EndProjectSection");
-                }
+                builder.AppendLine("EndProject");
             }
         }
 
@@ -60,7 +51,7 @@ namespace MssBuilder
             builder.AppendLine("        Debug|Any CPU = Debug|Any CPU");
             builder.AppendLine("        Release|Any CPU = Release|Any CPU");
             builder.AppendLine("    EndGlobalSection");
-            builder.AppendLine("    GlobalSection(SolutionConfigurationPlatforms) = postSolution");
+            builder.AppendLine("    GlobalSection(ProjectConfigurationPlatforms) = postSolution");
             foreach (var project in projects)
             {
                 builder.AppendLine($"        {{{project.Id}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU");

@@ -11,6 +11,7 @@
     <ProjectReference Include="..\MicroSwarmFileSystem\MicroSwarmFileSystem.csproj" />
     <ProjectReference Include="..\Mss\Mss.csproj" />
     <ProjectReference Include="..\MssParser\MssParser.csproj" />
+    <ProjectReference Include="..\MssBuilder\MssBuilder.csproj" />
   </ItemGroup>
 
 </Project>

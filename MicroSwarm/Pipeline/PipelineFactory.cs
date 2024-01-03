@@ -12,5 +12,14 @@ namespace MicroSwarm.Pipeline
             MssParseHandler parseHandler = new(resolveHandler);
             return new Pipeline<IEnumerable<SwarmFile>>(parseHandler);
         }
+
+        public static IPipeline<IEnumerable<SwarmFile>> CreateMssPipeline(SwarmDir outDir)
+        {
+            ToMicroSwarmHandler outputHandler = new(outDir);
+            MergeSpecsHandler mergeHandler = new(outputHandler);
+            MssResolveHandler resolveHandler = new(mergeHandler);
+            MssParseHandler parseHandler = new(resolveHandler);
+            return new Pipeline<IEnumerable<SwarmFile>>(parseHandler);
+        }
     }
 }

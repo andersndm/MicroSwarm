@@ -163,12 +163,12 @@ namespace MicroSwarm.TaskHandlers
         private static void GenerateService(StringBuilder builder, MssService service, bool withAggRel, string indent)
         {
             var serviceRef = GetServiceRef(service.Name);
-            builder.AppendLine(@$"package ""{service.Name} Service"" as {serviceRef} {{");
+            builder.AppendLine(@$"{indent}package ""{service.Name} Service"" as {serviceRef} {{");
 
             GenerateDatabase(builder, service.Database, service.Name, serviceRef, indent + "    ");
             GenerateAggregate(builder, service.AggregateFields, service.Name, serviceRef, indent + "    ", withAggRel);
 
-            builder.AppendLine("}\n");
+            builder.AppendLine($"{indent}}}\n");
         }
 
         private static void GenerateServices(StringBuilder builder, IEnumerable<MssService> services, bool withAggRel)
@@ -202,13 +202,20 @@ namespace MicroSwarm.TaskHandlers
                 return IResult.BadResult("No input MssSpec supplied");
             }
 
-            foreach (var spec in input)
+            var tasks = new Task[input.Count()];
+            for (int i = 0; i < input.Count(); ++i)
             {
+                var spec = input.ElementAt(i);
                 var name = Path.GetFileNameWithoutExtension(spec.Filename);
-                var puml = Generate(name, spec, true);
-                var file = _outputDir.CreateFile(name + ".puml");
-                file.Write(puml);
+                tasks[i] = Task.Run(() =>
+                {
+                    var puml = Generate(name, spec, true);
+                    var file = _outputDir.CreateFile(name + ".puml");
+                    file.Write(puml);
+                });
             }
+
+            Task.WhenAll(tasks).Wait();
 
             return IResult.OkResult("wrote file to ...");
         }

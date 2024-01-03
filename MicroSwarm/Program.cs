@@ -96,7 +96,12 @@ namespace MicroSwarm
                 IEnumerable<SwarmFile> inputFiles = GetInputFiles(input.Files, currentDir);
                 SwarmDir outputDir = GetOutputDir(input.OutputDir, currentDir);
 
-                var pipeline = PipelineFactory.CreatePumlPipeline(outputDir);
+                var pipeline = input.ToPuml switch
+                {
+                    true => PipelineFactory.CreatePumlPipeline(outputDir),
+                    false => PipelineFactory.CreateMssPipeline(outputDir)
+                };
+
                 var result = pipeline.Execute(inputFiles);
                 if (!result.Ok)
                 {
