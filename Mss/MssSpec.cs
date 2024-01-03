@@ -14,6 +14,7 @@ namespace Mss
 
         public bool Merge(MssSpec other)
         {
+            // verify that any shared types are the same
             List<MssType> typesToAdd = [];
             foreach (var otherType in other.Types)
             {
@@ -23,7 +24,6 @@ namespace Mss
                     {
                         if (!type.IsSameType(otherType))
                         {
-
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.Write("Mss Merge Error: ");
                             Console.ResetColor();
@@ -38,11 +38,36 @@ namespace Mss
                             return false;
                         }
                     }
+                    else
+                    {
+                        typesToAdd.Add(otherType);
+                    }
                 }
-                typesToAdd.Add(otherType);
             }
-
             _types.AddRange(typesToAdd);
+
+            // verify that no services have the same name
+            foreach (var otherService in other.Services)
+            {
+                foreach (var service in _services)
+                {
+                    if (service.Name == otherService.Name)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.Write("Mss Merge Error: ");
+                        Console.ResetColor();
+                        Console.WriteLine("Conflicting services with the same name, '" + service.Name + "' found in ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(Filename);
+                        Console.ResetColor();
+                        Console.Write(" and ");
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.Write(other.Filename);
+                        Console.ResetColor();
+                        return false;
+                    }
+                }
+            }
             _services.AddRange(other.Services);
 
             return true;
