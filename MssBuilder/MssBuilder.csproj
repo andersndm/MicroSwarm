@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Mss\Mss.csproj" />
     <ProjectReference Include="..\Templates\Templates.csproj" />
+    <ProjectReference Include="..\MicroSwarmFileSystem\MicroSwarmFileSystem.csproj" />
   </ItemGroup>
 
   <ItemGroup>

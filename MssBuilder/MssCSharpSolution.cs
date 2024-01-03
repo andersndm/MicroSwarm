@@ -1,11 +1,15 @@
+using MicroSwarm.FileSystem;
 using MssBuilder.Projects;
 using System.Text;
 
 namespace MssBuilder
 {
-    public class MssCSharpSolution(string name)
+    public class MssCSharpSolution(string name, SwarmDir solutionDir)
     {
         public string Name { get; } = name;
+        public SwarmDir Dir { get => _dir; }
+
+        private SwarmDir _dir = solutionDir;
 
         private readonly List<MssCSharpProject> projects = [];
 
@@ -69,18 +73,18 @@ namespace MssBuilder
             builder.AppendLine("EndGlobal");
         }
 
-        public void Write(string path)
+        public void Write()
         {
             StringBuilder solutionBuilder = new();
             WriteGlobalProperties(solutionBuilder);
             WriteProjectSection(solutionBuilder);
             WriteGlobalSection(solutionBuilder);
 
-            File.WriteAllText(Path.Combine(path, Name + ".sln"), solutionBuilder.ToString());
+            _dir.CreateFile(Name + ".sln").Write(solutionBuilder.ToString());
 
             foreach (var project in projects)
             {
-                project.Write(path);
+                project.Write();
             }
 
         }

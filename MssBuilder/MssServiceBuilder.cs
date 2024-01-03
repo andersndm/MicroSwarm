@@ -1,4 +1,5 @@
 using CLI.Templates;
+using MicroSwarm.FileSystem;
 using Mss;
 using Mss.Types;
 using MssBuilder.Projects;
@@ -107,9 +108,9 @@ namespace MssBuilder
             return "\n" + string.Join("\n", properties);
         }
 
-        private MssCSharpFile BuildEntityFile(MssEntity entity, IEnumerable<MssRelation> relations)
+        private MssCSharpFile BuildEntityFile(MssEntity entity, IEnumerable<MssRelation> relations, SwarmDir projectDir)
         {
-            string filename = ENTITY_FOLDER + "/" + GetEntityName(entity) + ".cs";
+            string filename = GetEntityName(entity) + ".cs";
             string nameSpace = _serviceName + "." + ENTITY_FOLDER;
 
             List<MssField> fieldsWithRelation = [];
@@ -139,7 +140,7 @@ namespace MssBuilder
             {
                 content = _usingTemplate.Render(MssValueTypeBuilder.ProjectName) + "\n\n" + content;
             }
-            return new(filename, content);
+            return new(filename, projectDir, content);
         }
 
         private string BuildEntityModel(MssEntity entity, IEnumerable<MssRelation> relations)
@@ -211,7 +212,7 @@ namespace MssBuilder
             return modelBuilder.ToString();
         }
 
-        private MssCSharpFile BuildDbContext(MssDatabase database, string projectName)
+        private MssCSharpFile BuildDbContext(MssDatabase database, string projectName, SwarmDir projectDir)
         {
             string className = projectName + "Context";
             StringBuilder contentBuilder = new();
@@ -246,34 +247,35 @@ namespace MssBuilder
 
             contentBuilder.Append("        }\n    }\n}\n");
 
-            return new(className + ".cs", contentBuilder.ToString());
+            return new(className + ".cs", projectDir, contentBuilder.ToString());
         }
 
-        public MssWebApiProject Build(MssService service)
+        public MssWebApiProject Build(MssService service, SwarmDir solutionDir)
         {
             _serviceUsesValueTypes = false;
             _serviceName = service.Name;
 
-            MssWebApiProject project = new(_serviceName, _serviceName);
+            MssWebApiProject project = new(_serviceName, solutionDir);
+            var entityDir = project.Dir.CreateSub(ENTITY_FOLDER);
 
             foreach (var entity in service.Database.Entities)
             {
                 project.AddFile(
-                    BuildEntityFile(entity, service.Database.Relations.Where(r => r.ContainsEntity(entity))));
+                    BuildEntityFile(entity, service.Database.Relations.Where(r => r.ContainsEntity(entity)), entityDir));
             }
 
             project.AddFile(
                 BuildEntityFile(service.Database.Root,
-                                service.Database.Relations.Where(r => r.ContainsEntity(service.Database.Root))));
+                                service.Database.Relations.Where(r => r.ContainsEntity(service.Database.Root)), entityDir));
 
-            project.AddFile(new MssApiProgramFile(_serviceName));
+            project.AddFile(new MssApiProgramFile(_serviceName, project.Dir));
 
             if (_serviceUsesValueTypes)
             {
                 project.AddProjectReference(MssValueTypeBuilder.ProjectName);
             }
 
-            project.AddFile(BuildDbContext(service.Database, _serviceName));
+            project.AddFile(BuildDbContext(service.Database, _serviceName, project.Dir));
 
             project.AddPackageReference("Microsoft.EntityFrameworkCore", "8.0.0");
             project.AddPackageReference("Microsoft.EntityFrameworkCore.Design", "8.0.0");

@@ -1,8 +1,9 @@
+using MicroSwarm.FileSystem;
 using System.Text;
 
 namespace MssBuilder
 {
-    public class MssApiProgramFile(string nameSpace) : MssCSharpFile("Program.cs", "")
+    public class MssApiProgramFile(string nameSpace, SwarmDir dir) : MssCSharpFile("Program.cs", dir)
     {
         public readonly string NameSpace = nameSpace;
 
@@ -96,7 +97,7 @@ namespace MssBuilder
             builder.AppendLine(indent + "}");
         }
 
-        public override void Write(string path)
+        public override void Write()
         {
             StringBuilder builder = new();
 
@@ -114,7 +115,7 @@ namespace MssBuilder
 
             _content = builder.ToString();
 
-            base.Write(path);
+            base.Write();
         }
     }
 }
