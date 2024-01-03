@@ -15,17 +15,18 @@ namespace MicroSwarm.TaskHandlers
             }
 
             var parsers = new MssParser[input.Count()];
+            Array.Fill(parsers, new MssParser());
             if (!parsers[0].ValidateGrammar())
             {
                 return IResult.BadResult("Grammar validation failed");
             }
 
-            List<Task<MssSpecNode?>> tasks = [];
-            int parserIndex = 0;
-            foreach (var file in input)
+            var tasks = new Task<MssSpecNode?>[input.Count()];
+            for (int i = 0; i < input.Count(); ++i)
             {
-                tasks.Add(Task.Run(() => parsers[parserIndex].ParseMss(file.Name, file.LoadContent())));
-                ++parserIndex;
+                MssParser parser = parsers[i];
+                SwarmFile inputFile = input.ElementAt(i);
+                tasks[i] = Task.Run(() => parser.ParseMss(inputFile.Name, inputFile.LoadContent()));
             }
 
             Task.WhenAll(tasks).Wait();

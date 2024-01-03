@@ -33,13 +33,13 @@ namespace MicroSwarm.TaskHandlers
             }
 
             var resolvers = new MssResolver[input.Count()];
-            List<Task> tasks = [];
-            int resolverIndex = 0;
-            foreach (var node in input)
+            var tasks = new Task[input.Count()];
+            for (int i = 0; i < input.Count(); ++i)
             {
-                resolvers[resolverIndex] = new(node.Filename);
-                tasks.Add(Task.Run(() => node.Accept(resolvers[resolverIndex])));
-                ++resolverIndex;
+                var node = input.ElementAt(i);
+                resolvers[i] = new(node.Filename);
+                var resolver = resolvers[i];
+                tasks[i] = Task.Run(() => node.Accept(resolver));
             }
 
             Task.WhenAll(tasks).Wait();

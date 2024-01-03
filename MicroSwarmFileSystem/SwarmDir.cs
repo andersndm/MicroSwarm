@@ -140,7 +140,7 @@ namespace MicroSwarm.FileSystem
 
         public SwarmFile CreateFile(string filename)
         {
-            File.CreateText(GetAbsolutePath() + filename);
+            File.CreateText(GetAbsolutePath() + filename).Close();
             return new SwarmFile(filename, this);
         }
 
