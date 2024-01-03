@@ -1,11 +1,14 @@
-using System.Text;
+using MicroSwarm.FileSystem;
 using Mss;
 using Mss.Types;
+using System.Text;
 
-namespace CLI.Services
+namespace MicroSwarm.TaskHandlers
 {
-    public static class PumlGenerator
+    public class ToPumlHandler(SwarmDir outputDir) : TaskHandlerTail<IEnumerable<MssSpec>>
     {
+        private readonly SwarmDir _outputDir = outputDir;
+
         private static string GetServiceRef(string serviceName) => serviceName.ToLowerInvariant() + "_service";
         private static string GetDbRef(string serviceRef) => serviceRef + "_db";
         private static string GetEntityRef(string dbRef, string entityName) => dbRef + "_" + entityName.ToLowerInvariant();
@@ -160,12 +163,12 @@ namespace CLI.Services
         private static void GenerateService(StringBuilder builder, MssService service, bool withAggRel, string indent)
         {
             var serviceRef = GetServiceRef(service.Name);
-            builder.AppendLine(@$"package ""{service.Name} Service"" as {serviceRef} {{");
+            builder.AppendLine(@$"{indent}package ""{service.Name} Service"" as {serviceRef} {{");
 
             GenerateDatabase(builder, service.Database, service.Name, serviceRef, indent + "    ");
             GenerateAggregate(builder, service.AggregateFields, service.Name, serviceRef, indent + "    ", withAggRel);
 
-            builder.AppendLine("}\n");
+            builder.AppendLine($"{indent}}}\n");
         }
 
         private static void GenerateServices(StringBuilder builder, IEnumerable<MssService> services, bool withAggRel)
@@ -190,6 +193,31 @@ namespace CLI.Services
             builder.AppendLine("@enduml");
 
             return builder.ToString();
+        }
+
+        public override IResult Handle(IEnumerable<MssSpec> input)
+        {
+            if (!input.Any())
+            {
+                return IResult.BadResult("No input MssSpec supplied");
+            }
+
+            var tasks = new Task[input.Count()];
+            for (int i = 0; i < input.Count(); ++i)
+            {
+                var spec = input.ElementAt(i);
+                var name = Path.GetFileNameWithoutExtension(spec.Filename);
+                tasks[i] = Task.Run(() =>
+                {
+                    var puml = Generate(name, spec, true);
+                    var file = _outputDir.CreateFile(name + ".puml");
+                    file.Write(puml);
+                });
+            }
+
+            Task.WhenAll(tasks).Wait();
+
+            return IResult.OkResult("wrote file to ...");
         }
     }
 }

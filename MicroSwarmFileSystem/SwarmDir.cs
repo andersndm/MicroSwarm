@@ -138,6 +138,12 @@ namespace MicroSwarm.FileSystem
             }
         }
 
+        public SwarmFile CreateFile(string filename)
+        {
+            File.CreateText(GetAbsolutePath() + filename).Close();
+            return new SwarmFile(filename, this);
+        }
+
         private static SwarmDir GetDir(SwarmDir start, string[] path)
         {
             var dir = start;

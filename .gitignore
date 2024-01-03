@@ -487,4 +487,4 @@ $RECYCLE.BIN/
 *.swp
 
 # Mss test output
-Dapr/MSS/test
+out

@@ -1,4 +1,5 @@
 using Irony.Parsing;
+using Mss.Parsing;
 using Mss.Ast;
 using Mss.Ast.Visitor;
 using Mss.Types;
@@ -7,7 +8,7 @@ namespace Mss.Resolver
 {
     public class MssResolver : IMssAstVisitor
     {
-        public readonly List<MssResolverError> Errors = [];
+        public readonly List<MssError> Errors = [];
 
         private readonly MssInvalidType _invalidType = new();
         private readonly List<MssBuiltInType> _builtInTypes =
@@ -37,9 +38,12 @@ namespace Mss.Resolver
         private readonly List<MssService> _services = [];
         public IEnumerable<MssService> Services => _services;
 
-        public MssResolver()
+        private readonly string _filename;
+
+        public MssResolver(string filename)
         {
             _keyTypes = [_primaryKey, _foreignKey, _externKey];
+            _filename = filename;
         }
 
         public MssSpec GetSpec()
@@ -50,7 +54,7 @@ namespace Mss.Resolver
             types.AddRange(_classTypes);
             types.AddRange(_externTypes);
             types.AddRange(_listTypes);
-            return new MssSpec(types, _services);
+            return new MssSpec(types, _services, _filename);
         }
 
         private string VerifyName(string name, SourceLocation location,
@@ -61,34 +65,34 @@ namespace Mss.Resolver
             {
                 if (_builtInTypes.Select(t => t.ToString()).Contains(name))
                 {
-                    Errors.Add(new(builtinMsg, location));
+                    Errors.Add(new(builtinMsg, _filename, location));
                     return ERROR_IDENTIFIER;
                 }
 
                 if (_keyTypes.Select(k => k.ToString()).Contains(name))
                 {
-                    Errors.Add(new(keyMsg, location));
+                    Errors.Add(new(keyMsg, _filename, location));
                     return ERROR_IDENTIFIER;
                 }
 
                 var classNames = _classTypes.Select(c => c.Name);
                 if (classNames.Contains(name))
                 {
-                    Errors.Add(new(classMsg, location));
+                    Errors.Add(new(classMsg, _filename, location));
                     return ERROR_IDENTIFIER;
                 }
 
                 var externNames = _externTypes.Select(e => e.Name);
                 if (externNames.Contains(name))
                 {
-                    Errors.Add(new(externMsg, location));
+                    Errors.Add(new(externMsg, _filename, location));
                     return ERROR_IDENTIFIER;
                 }
 
                 var serviceNames = Services.Select(s => s.Name);
                 if (serviceNames.Contains(name))
                 {
-                    Errors.Add(new(serviceMsg, location));
+                    Errors.Add(new(serviceMsg, _filename, location));
                     return ERROR_IDENTIFIER;
                 }
             }
@@ -143,7 +147,7 @@ namespace Mss.Resolver
             var type = ResolveType(prop.Type);
             if (type.IsValid && type is not MssBuiltInType)
             {
-                Errors.Add(new("Invalid class property type: " + prop.Type, prop.Location));
+                Errors.Add(new("Invalid class property type: " + prop.Type, _filename, prop.Location));
             }
             return type;
         }
@@ -154,7 +158,7 @@ namespace Mss.Resolver
             if (type.IsValid && type is not MssBuiltInType && type is not MssClassType &&
                 type is not MssKeyType && type is not MssExternType)
             {
-                Errors.Add(new("Invalid entity property type: " + prop.Type, prop.Location));
+                Errors.Add(new("Invalid entity property type: " + prop.Type, _filename, prop.Location));
             }
             return type;
         }
@@ -180,7 +184,7 @@ namespace Mss.Resolver
             if (type.IsValid && type is not MssBuiltInType && type is not MssClassType &&
                 type is not MssExternType && type != _externKey)
             {
-                Errors.Add(new("Invalid aggregate property type: " + prop.Type, prop.Location));
+                Errors.Add(new("Invalid aggregate property type: " + _filename, prop.Type, prop.Location));
             }
             if (prop.IsList)
             {
@@ -215,24 +219,24 @@ namespace Mss.Resolver
                 {
                     if (hasPrimaryKey == true)
                     {
-                        Errors.Add(new("entity can only have 1 primary key: " + prop.Identifier, prop.Location));
+                        Errors.Add(new("entity can only have 1 primary key: " + _filename, prop.Identifier, prop.Location));
                     }
                     hasPrimaryKey = true;
                 }
                 if (!type.IsValid)
                 {
-                    Errors.Add(new("Invalid type in entity field: " + prop.Type, prop.Location));
+                    Errors.Add(new("Invalid type in entity field: " + _filename, prop.Type, prop.Location));
                 }
                 if (fields.Select(f => f.Name).Contains(prop.Identifier))
                 {
-                    Errors.Add(new("Duplicate field name in entity: " + prop.Identifier, prop.Location));
+                    Errors.Add(new("Duplicate field name in entity: " + _filename, prop.Identifier, prop.Location));
                 }
                 fields.Add(new MssField(prop.Identifier, type));
             }
 
             if (!hasPrimaryKey)
             {
-                Errors.Add(new("entity must have a primary key", location));
+                Errors.Add(new("entity must have a primary key", _filename, location));
             }
 
             return fields;
@@ -244,11 +248,11 @@ namespace Mss.Resolver
             var rootField = root.GetField(rootFieldName);
             if (rootField == null)
             {
-                Errors.Add(new("Aggregate field not found in root: " + aggField.Name, location));
+                Errors.Add(new("Aggregate field not found in root: " + aggField.Name, _filename, location));
             }
             else if (!TypesAreCompatible(aggField.Type, rootField.Type))
             {
-                Errors.Add(new("Aggregate field is not the same type as mapped root field: " + aggField.Name, location));
+                Errors.Add(new("Aggregate field is not the same type as mapped root field: " + aggField.Name, _filename, location));
             }
             else
             {
@@ -263,13 +267,13 @@ namespace Mss.Resolver
             var rootField = db.Root.GetField(rootFieldName);
             if (rootField == null)
             {
-                Errors.Add(new("Aggregate field not found in root: " + aggField.Name, location));
+                Errors.Add(new("Aggregate field not found in root: " + aggField.Name, _filename, location));
             }
             else
             {
                 if (rootField.Type != _foreignKey)
                 {
-                    Errors.Add(new("Root field type must be foreign key to map aggregate to another entity: " + rootField.Name, location));
+                    Errors.Add(new("Root field type must be foreign key to map aggregate to another entity: " + rootField.Name, _filename, location));
                 }
 
                 var rel = db.GetFieldRelations(rootField);
@@ -277,14 +281,14 @@ namespace Mss.Resolver
                 {
                     if (rel.Kind is not MssRelationKindOne)
                     {
-                        Errors.Add(new("Not a to-one mapping: " + aggField.Name, location));
+                        Errors.Add(new("Not a to-one mapping: " + aggField.Name, _filename, location));
                     }
                     else
                     {
                         var mappedField = rel.Entity.GetField(entityFieldName);
                         if (mappedField == null)
                         {
-                            Errors.Add(new("Aggregate field mapping points to non-existent field '" + entityFieldName + "' in entity: " + rel.Entity.Name, location));
+                            Errors.Add(new("Aggregate field mapping points to non-existent field '" + entityFieldName + "' in entity: " + rel.Entity.Name, _filename, location));
                         }
                         else
                         {
@@ -304,18 +308,18 @@ namespace Mss.Resolver
                 var entity = db.GetEntity(entityName);
                 if (entity == null)
                 {
-                    Errors.Add(new("Aggregate mapping points to non-existent entity: " + entityName, location));
+                    Errors.Add(new("Aggregate mapping points to non-existent entity: " + entityName, _filename, location));
                     return null;
                 }
                 var field = entity.GetField(fieldName);
                 if (field == null)
                 {
-                    Errors.Add(new("Aggregate mapping points to non-existent field '" + fieldName + "' in entity: " + entityName, location));
+                    Errors.Add(new("Aggregate mapping points to non-existent field '" + fieldName + "' in entity: " + entityName, _filename, location));
                     return null;
                 }
                 if (!TypesAreCompatible(list.SubType, field.Type))
                 {
-                    Errors.Add(new("Aggregate field list subtype is not the same type as mapped entity field: " + aggField.Name, location));
+                    Errors.Add(new("Aggregate field list subtype is not the same type as mapped entity field: " + aggField.Name, _filename, location));
                     return null;
                 }
 
@@ -350,7 +354,7 @@ namespace Mss.Resolver
 
                 if (rootPK == null || relField == null)
                 {
-                    Errors.Add(new("Aggregate mapping entity does not have a many-to-one relation to the root's primary key: " + entityName, location));
+                    Errors.Add(new("Aggregate mapping entity does not have a many-to-one relation to the root's primary key: " + entityName, _filename, location));
                     return null;
                 }
                 var mapper = new MssAggregateFieldMappingWhere([(entity, field)], db.Root, rootPK, entity, relField);
@@ -358,7 +362,7 @@ namespace Mss.Resolver
             }
             else
             {
-                Errors.Add(new("Aggregate fields that do not directly map to root must be list types: " + aggField.Name, location));
+                Errors.Add(new("Aggregate fields that do not directly map to root must be list types: " + aggField.Name, _filename, location));
                 return null;
             }
         }
@@ -421,7 +425,7 @@ namespace Mss.Resolver
                 }
                 else
                 {
-                    Errors.Add(new("Not an allowed mapping from aggregate field to root field: " + identifier, prop.Location));
+                    Errors.Add(new("Not an allowed mapping from aggregate field to root field: " + identifier, _filename, prop.Location));
                 }
 
                 if (Errors.Count > errorCount) { return []; }
@@ -455,7 +459,10 @@ namespace Mss.Resolver
         }
 
         // these nodes are only visited to delve deeper
-        public void Visit(MssSpecNode node) => VisitChildren(node);
+        public void Visit(MssSpecNode node)
+        {
+            VisitChildren(node);
+        }
         public void Visit(MssSpecListNode node) => VisitChildren(node);
         public void Visit(MssSpecItemNode node) => VisitChildren(node);
         public void Visit(MssTypeSpecNode node) => VisitChildren(node);
@@ -467,7 +474,7 @@ namespace Mss.Resolver
             MssType type = ResolveType(node.Property.Type);
             if (!type.IsValid)
             {
-                Errors.Add(new("Invalid type in class field: " + node.Property.Type, node.Property.Location));
+                Errors.Add(new("Invalid type in class field: " + node.Property.Type, _filename, node.Property.Location));
             }
 
             _classTypes.Add(new MssClassType(VerifyClassName(node), new MssField(node.Property.Identifier, type)));
@@ -489,11 +496,11 @@ namespace Mss.Resolver
                 // verify the name
                 if (entities.Select(e => e.Name).Contains(entity.Identifier))
                 {
-                    Errors.Add(new("Duplicate entity name in service: " + entity.Identifier, entity.Location));
+                    Errors.Add(new("Duplicate entity name in service: " + entity.Identifier, _filename, entity.Location));
                 }
                 if (entity.Identifier == "root")
                 {
-                    Errors.Add(new("Cannot name an entity root: " + entity.Identifier, entity.Location));
+                    Errors.Add(new("Cannot name an entity root: " + entity.Identifier, _filename, entity.Location));
                 }
 
                 entities.Add(new MssEntity(entity.Identifier, ResolveEntityFields(entity.Properties, entity.Location)));
@@ -511,12 +518,12 @@ namespace Mss.Resolver
             {
                 if (relation.FromAccess.Access.Count != 2)
                 {
-                    Errors.Add(new("Relation from must have exactly 2 accessors", relation.FromAccess.Location));
+                    Errors.Add(new("Relation from must have exactly 2 accessors", _filename, relation.FromAccess.Location));
                     continue;
                 }
                 else if (relation.ToAccess.Access.Count != 2)
                 {
-                    Errors.Add(new("Relation to must have exactly 2 accessors", relation.FromAccess.Location));
+                    Errors.Add(new("Relation to must have exactly 2 accessors", _filename, relation.FromAccess.Location));
                     continue;
                 }
                 else
@@ -530,14 +537,14 @@ namespace Mss.Resolver
                         }
                         else
                         {
-                            Errors.Add(new("Relation from entity not found: " + relation.FromAccess.Access[0], relation.FromAccess.Location));
+                            Errors.Add(new("Relation from entity not found: " + _filename, relation.FromAccess.Access[0], relation.FromAccess.Location));
                             continue;
                         }
                     }
                     var fromField = fromEntity.Fields.FirstOrDefault(f => f.Name == relation.FromAccess.Access[1]);
                     if (fromField == null)
                     {
-                        Errors.Add(new("Relation from field not found in " + fromEntity.Name + ": " + relation.FromAccess.Access[1],
+                        Errors.Add(new("Relation from field not found in " + _filename, fromEntity.Name + ": " + relation.FromAccess.Access[1],
                                        relation.FromAccess.Location));
                         continue;
                     }
@@ -551,7 +558,7 @@ namespace Mss.Resolver
                         }
                         else
                         {
-                            Errors.Add(new("Relation from entity not found: " + relation.ToAccess.Access[0], relation.ToAccess.Location));
+                            Errors.Add(new("Relation from entity not found: " + _filename, relation.ToAccess.Access[0], relation.ToAccess.Location));
                             continue;
                         }
                     }
@@ -559,14 +566,14 @@ namespace Mss.Resolver
                     if (toField == null)
                     {
                         Errors.Add(new("Relation to field not found in " + toEntity.Name + ": " + relation.ToAccess.Access[1],
-                                       relation.ToAccess.Location));
+                                       _filename, relation.ToAccess.Location));
                         continue;
                     }
 
                     if ((fromField.Type != _primaryKey && toField.Type != _primaryKey) ||
                         (fromField.Type != _foreignKey && toField.Type != _foreignKey))
                     {
-                        Errors.Add(new("A relation must be between an entity's primary key and another's foreign key", relation.Location));
+                        Errors.Add(new("A relation must be between an entity's primary key and another's foreign key", _filename, relation.Location));
                         continue;
                     }
 
@@ -586,7 +593,7 @@ namespace Mss.Resolver
                 if (!relations.Any(r => r.FromEntity == fkEntity && r.FromField == fkField) &&
                     !relations.Any(r => r.ToEntity == fkEntity && r.ToField == fkField))
                 {
-                    Errors.Add(new("Foreign key " + fkField.Name + " in " + fkEntity.Name + " must have a relation", node.Location));
+                    Errors.Add(new("Foreign key " + fkField.Name + " in " + fkEntity.Name + " must have a relation", _filename, node.Location));
                 }
             }
 

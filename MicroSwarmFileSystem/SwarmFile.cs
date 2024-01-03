@@ -7,5 +7,15 @@ namespace MicroSwarm.FileSystem
 
         public string Name { get => _name; }
         public SwarmDir Parent { get => _parent; }
+
+        public string LoadContent()
+        {
+            return File.ReadAllText(_parent.ToString() + _name);
+        }
+
+        public void Write(string content)
+        {
+            File.WriteAllText(_parent.ToString() + _name, content);
+        }
     }
 }

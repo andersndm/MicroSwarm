@@ -1,4 +1,5 @@
 ﻿using MicroSwarm.FileSystem;
+using MicroSwarm.Pipeline;
 using System.Diagnostics;
 
 namespace MicroSwarm
@@ -95,6 +96,18 @@ namespace MicroSwarm
                 IEnumerable<SwarmFile> inputFiles = GetInputFiles(input.Files, currentDir);
                 SwarmDir outputDir = GetOutputDir(input.OutputDir, currentDir);
 
+                var pipeline = input.ToPuml switch
+                {
+                    true => PipelineFactory.CreatePumlPipeline(outputDir),
+                    false => PipelineFactory.CreateMssPipeline(outputDir)
+                };
+
+                var result = pipeline.Execute(inputFiles);
+                if (!result.Ok)
+                {
+                    Console.WriteLine("Bad result: " + result.Value);
+                    Environment.Exit(1);
+                }
             }
         }
     }
