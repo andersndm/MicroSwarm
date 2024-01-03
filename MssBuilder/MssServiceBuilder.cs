@@ -1,5 +1,6 @@
 using CLI.Templates;
 using MicroSwarm.FileSystem;
+using MicroSwarm.Templates;
 using Mss;
 using Mss.Types;
 using MssBuilder.Projects;
@@ -10,12 +11,6 @@ namespace MssBuilder
 {
     public class MssServiceBuilder
     {
-        private readonly PropertyTemplate _propertyTemplate = new();
-        private readonly EntityTemplate _entityTemplate = new();
-        private readonly UsingTemplate _usingTemplate = new();
-        private readonly DbContextHeaderTemplate _dbContextHeaderTemplate = new();
-        private readonly DbContextConstructorTemplate _dbContextConstructorTemplate = new();
-
         private string _serviceName = "";
         private const string ENTITY_FOLDER = "Entities";
 
@@ -50,7 +45,7 @@ namespace MssBuilder
                     // Todo: use relations to figure out types
                     typeStr = "int";
                 }
-                properties.Add(_propertyTemplate.Render(field.Name, typeStr));
+                properties.Add(PropertyTemplate.Render(field.Name, typeStr));
             }
 
             return (hasValueType, string.Join("\n", properties));
@@ -80,7 +75,7 @@ namespace MssBuilder
                 if (field.Type is MssKeyType && field.Type.ToString() == "PK")
                 {
                     // Todo could add a to c# string
-                    properties.Add(_propertyTemplate.Render(field.Name, "int"));
+                    properties.Add(PropertyTemplate.Render(field.Name, "int"));
                 }
 
                 var rels = relations.Where(r => r.ContainsField(field)).ToList();
@@ -97,11 +92,11 @@ namespace MssBuilder
 
                     if (toRel.IsMany)
                     {
-                        properties.Add(_propertyTemplate.Render(toEntityName, $"List<{toEntityName}>"));
+                        properties.Add(PropertyTemplate.Render(toEntityName, $"List<{toEntityName}>"));
                     }
                     else
                     {
-                        properties.Add(_propertyTemplate.Render(toEntityName, toEntityName));
+                        properties.Add(PropertyTemplate.Render(toEntityName, toEntityName));
                     }
                 }
             }
@@ -135,10 +130,10 @@ namespace MssBuilder
                 _serviceUsesValueTypes = true;
             }
 
-            string content = _entityTemplate.Render(nameSpace, GetEntityName(entity), properties + rel_properties);
+            string content = EntityTemplate.Render(nameSpace, GetEntityName(entity), properties + rel_properties);
             if (usesValueTypes)
             {
-                content = _usingTemplate.Render(MssValueTypeBuilder.ProjectName) + "\n\n" + content;
+                content = UsingTemplate.Render(MssValueTypeBuilder.ProjectName) + "\n\n" + content;
             }
             return new(filename, projectDir, content);
         }
@@ -218,34 +213,27 @@ namespace MssBuilder
             StringBuilder contentBuilder = new();
             if (_serviceUsesValueTypes)
             {
-                contentBuilder.Append(_usingTemplate.Render(MssValueTypeBuilder.ProjectName));
+                contentBuilder.AppendLine(UsingTemplate.Render(MssValueTypeBuilder.ProjectName));
             }
-            contentBuilder.Append(_dbContextHeaderTemplate.Render(projectName, className));
+            contentBuilder.AppendLine(DbContextTemplate.RenderHeader(projectName, className));
 
-            string rootName = GetEntityName(database.Root);
-            contentBuilder.Append($"        public DbSet<{rootName}> {rootName} {{ get; set; }}\n");
+            var entityNames = new List<string> { GetEntityName(database.Root) };
+            entityNames.AddRange(database.Entities.Select(e => e.Name));
+            contentBuilder.AppendLine(DbContextTemplate.RenderDbSets(entityNames));
+
+            contentBuilder.AppendLine(DbContextTemplate.RenderConstructor(projectName, className));
+
+            contentBuilder.AppendLine(DbContextTemplate.RenderOnModelCreatingHeader());
+
+            contentBuilder.AppendLine(BuildEntityModel(database.Root, database.Relations.Where(r => r.ContainsEntity(database.Root))));
             foreach (var entity in database.Entities)
             {
-                contentBuilder.Append($"        public DbSet<{entity.Name}> {entity.Name} {{ get; set; }}\n");
+                contentBuilder.AppendLine(BuildEntityModel(entity, database.Relations.Where(r => r.ContainsEntity(entity))));
             }
 
-            contentBuilder.Append(_dbContextConstructorTemplate.Render(projectName, className));
+            contentBuilder.AppendLine(DbContextTemplate.RenderOnModelCreatingFooter());
 
-            contentBuilder.Append(
-    @"
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-
-");
-
-            contentBuilder.Append(BuildEntityModel(database.Root, database.Relations.Where(r => r.ContainsEntity(database.Root))));
-            foreach (var entity in database.Entities)
-            {
-                contentBuilder.Append(BuildEntityModel(entity, database.Relations.Where(r => r.ContainsEntity(entity))));
-            }
-
-            contentBuilder.Append("        }\n    }\n}\n");
+            contentBuilder.AppendLine(DbContextTemplate.RenderFooter());
 
             return new(className + ".cs", projectDir, contentBuilder.ToString());
         }

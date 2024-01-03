@@ -10,13 +10,11 @@ namespace MssBuilder
     {
         public static readonly string ProjectName = "ValueTypes";
 
-        private readonly ValueClassTemplate _classTemplate = new();
-
         private MssCSharpFile BuildValueClassFile(MssClassType valueType, SwarmDir dir)
         {
             string filename = valueType.Name + ".cs";
-            string classContent = _classTemplate.Render(ProjectName, valueType.Name, valueType.Field.Name,
-                                                        valueType.Field.Type.ToString());
+            string classContent = ValueClassTemplate.Render(ProjectName, valueType.Name, valueType.Field.Name,
+                                                            valueType.Field.Type.ToString());
             MssCSharpFile result = new(filename, dir, classContent);
             return result;
         }
