@@ -12,5 +12,10 @@ namespace MicroSwarm.FileSystem
         {
             return File.ReadAllText(_parent.ToString() + _name);
         }
+
+        public void Write(string content)
+        {
+            File.WriteAllText(_parent.ToString() + _name, content);
+        }
     }
 }

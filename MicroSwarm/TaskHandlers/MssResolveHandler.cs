@@ -5,9 +5,11 @@ using System.Diagnostics;
 
 namespace MicroSwarm.TaskHandlers
 {
-    public class MssResolveHandler(ITaskHandler<MssSpec> next)
-        : TaskHandler<IEnumerable<MssSpecNode>, MssSpec>(next)
+    public class MssResolveHandler(ITaskHandler<IEnumerable<MssSpec>> next)
+        : TaskHandler<IEnumerable<MssSpecNode>, IEnumerable<MssSpec>>(next)
     {
+        // Todo: move to a merger handler
+        /*
         private static MssSpec? MergeSpecs(IEnumerable<MssSpec> specs)
         {
             Debug.Assert(specs.Any());
@@ -21,6 +23,7 @@ namespace MicroSwarm.TaskHandlers
             }
             return master;
         }
+        */
 
         public override IResult Handle(IEnumerable<MssSpecNode> input)
         {
@@ -59,15 +62,7 @@ namespace MicroSwarm.TaskHandlers
                 return IResult.BadResult("Errors found while resolving");
             }
 
-            var output = MergeSpecs(resolvers.Select(r => r.GetSpec()));
-            if (output != null)
-            {
-                return _next.Handle(output);
-            }
-            else
-            {
-                return IResult.BadResult("Unable to merge specs");
-            }
+            return _next.Handle(resolvers.Select(r => r.GetSpec()));
         }
     }
 }

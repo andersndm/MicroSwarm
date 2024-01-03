@@ -1,11 +1,14 @@
-using System.Text;
+using MicroSwarm.FileSystem;
 using Mss;
 using Mss.Types;
+using System.Text;
 
-namespace CLI.Services
+namespace MicroSwarm.TaskHandlers
 {
-    public static class PumlGenerator
+    public class ToPumlHandler(SwarmDir outputDir) : TaskHandlerTail<IEnumerable<MssSpec>>
     {
+        private readonly SwarmDir _outputDir = outputDir;
+
         private static string GetServiceRef(string serviceName) => serviceName.ToLowerInvariant() + "_service";
         private static string GetDbRef(string serviceRef) => serviceRef + "_db";
         private static string GetEntityRef(string dbRef, string entityName) => dbRef + "_" + entityName.ToLowerInvariant();
@@ -190,6 +193,24 @@ namespace CLI.Services
             builder.AppendLine("@enduml");
 
             return builder.ToString();
+        }
+
+        public override IResult Handle(IEnumerable<MssSpec> input)
+        {
+            if (!input.Any())
+            {
+                return IResult.BadResult("No input MssSpec supplied");
+            }
+
+            foreach (var spec in input)
+            {
+                var name = Path.GetFileNameWithoutExtension(spec.Filename);
+                var puml = Generate(name, spec, true);
+                var file = _outputDir.CreateFile(name + ".puml");
+                file.Write(puml);
+            }
+
+            return IResult.OkResult("wrote file to ...");
         }
     }
 }
