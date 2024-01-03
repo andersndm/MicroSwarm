@@ -1,3 +1,4 @@
+using MicroSwarm.FileSystem;
 using System.Xml.Linq;
 
 namespace MssBuilder.Projects
@@ -6,7 +7,7 @@ namespace MssBuilder.Projects
     {
         public override Guid TypeGuid { get => _aspCoreProjectUUID; }
 
-        public MssWebApiProject(string name, string path) : base(name, path)
+        public MssWebApiProject(string name, SwarmDir solutionDir) : base(name, solutionDir)
         {
             _useWebSdk = true;
         }

@@ -1,21 +1,26 @@
+using MicroSwarm.FileSystem;
+
 namespace MssBuilder
 {
-    public class MssCSharpFile(string filename, string content)
+    public class MssCSharpFile : SwarmFile
     {
-        public readonly string Filename = filename;
+        public MssCSharpFile(string filename, SwarmDir dir) : base(filename, dir) => _content = "";
+        public MssCSharpFile(string filename, SwarmDir dir, string content) : base(filename, dir) => _content = content;
+
+        protected string _content;
+
         public string Content { get => _content; }
-
-        protected string _content = content;
-
-        public virtual void Write(string path)
+        public void SetContent(string content)
         {
-            string fullPath = Path.Combine(path, Filename);
-            string pathOnly = Path.GetDirectoryName(fullPath)!;
-            if (!Path.Exists(pathOnly))
+            if (content != null)
             {
-                _ = Directory.CreateDirectory(pathOnly);
+                _content = content;
             }
-            File.WriteAllText(fullPath, Content);
+        }
+
+        public virtual void Write()
+        {
+            base.Write(_content);
         }
     }
 }

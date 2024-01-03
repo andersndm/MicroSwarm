@@ -138,6 +138,17 @@ namespace MicroSwarm.FileSystem
             }
         }
 
+        public SwarmDir CreateSub(string subName, bool deleteIfExists = false)
+        {
+            string subPath = GetAbsolutePath() + subName;
+            if (deleteIfExists && Path.Exists(subPath))
+            {
+                Directory.Delete(subPath, true);
+            }
+            Directory.CreateDirectory(subPath);
+            return new SwarmDir(subName, this);
+        }
+
         public SwarmFile CreateFile(string filename)
         {
             File.CreateText(GetAbsolutePath() + filename).Close();

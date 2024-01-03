@@ -11,7 +11,7 @@ namespace MicroSwarm.TaskHandlers
         public override IResult Handle(MssSpec input)
         {
             // Todo: name for the output?
-            MssSolutionBuilder.GenerateServices(input, _outDir.GetAbsolutePath(), "swarm");
+            MssSolutionBuilder.GenerateServices(input, _outDir, "swarm");
             return IResult.OkResult("Built services");
         }
     }

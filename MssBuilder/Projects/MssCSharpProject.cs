@@ -1,3 +1,4 @@
+using MicroSwarm.FileSystem;
 using System.Xml.Linq;
 
 namespace MssBuilder.Projects
@@ -9,16 +10,17 @@ namespace MssBuilder.Projects
                                            new XAttribute("Include", $"..\\{name}\\{name}.csproj"));
     }
 
-    public abstract class MssCSharpProject(string name, string relPath)
+    public abstract class MssCSharpProject(string name, SwarmDir solutionDir)
     {
-        // solution file uuid for c# project/class library
+        // solution file uuid for generic c# project/class library
         protected Guid _csharpProjectUUID = new("FAE04EC0-301F-11D3-BF4B-00C04F79EFBC");
         protected Guid _aspCoreProjectUUID = new("9A19103F-16F7-4668-BE54-9A1E7A4F7556");
 
         public readonly string Name = name;
-        public readonly string RelPath = relPath;
         public readonly Guid Id = Guid.NewGuid();
 
+        public SwarmDir Dir { get => _dir; }
+        private readonly SwarmDir _dir = solutionDir.CreateSub(name, deleteIfExists: true);
         protected bool _useWebSdk = false;
 
         public virtual Guid TypeGuid { get => _csharpProjectUUID; }
@@ -90,19 +92,14 @@ namespace MssBuilder.Projects
 
         protected abstract string CreateProjectFile();
 
-        public void Write(string path)
+        public void Write()
         {
-            path = Path.Combine(path, RelPath);
-            if (!Path.Exists(path))
-            {
-                _ = Directory.CreateDirectory(path);
-            }
-
-            File.WriteAllText(Path.Combine(path, Name + ".csproj"), CreateProjectFile());
+            var projectFile = _dir.CreateFile(Name + ".csproj");
+            projectFile.Write(CreateProjectFile());
 
             foreach (var file in _files)
             {
-                file.Write(path);
+                file.Write();
             }
         }
     }
