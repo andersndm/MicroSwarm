@@ -90,10 +90,11 @@ namespace MssBuilder
             AppendLine(DbContextTemplate.RenderDbSets(entityNames));
 
             AppendLine(DbContextTemplate.RenderConstructor(_serviceName, className));
+            AppendLine();
+
             AppendLine(DbContextTemplate.RenderOnModelCreatingHeader());
 
-            const int METHOD_CONTENT_INDENT = 3;
-            Indent(METHOD_CONTENT_INDENT);
+            Indentation = METHOD_CONTENT_INDENT;
 
             AddEntityModel(database.Root, database.Relations.Where(r => r.ContainsEntity(database.Root)));
             foreach (var entity in database.Entities)

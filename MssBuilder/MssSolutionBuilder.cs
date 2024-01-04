@@ -30,10 +30,9 @@ namespace MssBuilder
 
             solution.Add(new MssValueTypeProject(classes, solutionDir));
 
-            MssServiceBuilder serviceBuilder = new();
             foreach (var service in spec.Services)
             {
-                solution.Add(serviceBuilder.Build(service, solution.Dir));
+                solution.Add(new MssWebApiProject(solutionDir, service));
             }
 
             solution.Write();

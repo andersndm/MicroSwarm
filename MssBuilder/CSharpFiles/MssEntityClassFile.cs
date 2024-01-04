@@ -36,8 +36,7 @@ namespace MssBuilder
             }
 
             AppendLine(EntityTemplate.RenderHeader(nameSpace, MssEntity.GetName(entity, _serviceName)));
-            const int PROPERTY_INDENTATION_LEVEL = 2;
-            Indent(PROPERTY_INDENTATION_LEVEL);
+            Indentation = CLASS_MEMBER_INDENT;
 
             AddPropertiesWithRelations(fieldsWithRelation, relations);
             _usesValueTypes = AddPropertiesWithoutRelations(fieldsWithoutRelation);

@@ -10,25 +10,19 @@ namespace MssBuilder
         private readonly string _singleIndentation = "    ";
         private const string EXTENSION = ".cs";
 
+        protected const int CLASS_MEMBER_INDENT = 2;
+        protected const int METHOD_CONTENT_INDENT = 3;
+
         public MssCSharpFile(string className, SwarmDir dir) : base(className + EXTENSION, dir) { }
         public MssCSharpFile(string className, SwarmDir dir, string content)
             : base(className + EXTENSION, dir) => _builder.Append(content);
 
         public string Content { get => _builder.ToString(); }
 
-        public void Indent() => ++_indent;
-        public void Indent(int count)
-        {
-            if (_indent + count > 0)
-            {
-                _indent += count;
-            }
-            else
-            {
-                _indent = 0;
-            }
-        }
+        public int Indentation { get => _indent; set => _indent = value > 0 ? value : 0; }
+        public void Indent(int count) => _indent = _indent + count > 0 ? _indent + count : 0;
 
+        public void Indent() => ++_indent;
         public void UnIndent()
         {
             if (_indent > 0)
@@ -67,6 +61,11 @@ namespace MssBuilder
                 ApplyIndentation();
                 _builder.AppendLine(newline);
             }
+        }
+
+        public void AppendLine()
+        {
+            _builder.AppendLine("");
         }
 
         public void Prepend(string str)
