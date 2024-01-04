@@ -49,14 +49,24 @@ namespace MssBuilder
 
         public void Append(string str)
         {
+            var lines = str.Split(Environment.NewLine);
+            for (int i = 0; i < lines.Length - 1; i++)
+            {
+                ApplyIndentation();
+                _builder.AppendLine(lines[i]);
+            }
             ApplyIndentation();
-            _builder.Append(str);
+            _builder.Append(lines.Last());
         }
 
         public void AppendLine(string line)
         {
-            ApplyIndentation();
-            _builder.AppendLine(line);
+            var lines = line.Split(Environment.NewLine);
+            foreach (var newline in lines)
+            {
+                ApplyIndentation();
+                _builder.AppendLine(newline);
+            }
         }
 
         public void Prepend(string str)

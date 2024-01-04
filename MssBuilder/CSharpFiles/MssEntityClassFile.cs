@@ -11,6 +11,9 @@ namespace MssBuilder
         private readonly MssEntity _entity;
         private readonly string _serviceName;
 
+        public bool UsesValueTypes { get => _usesValueTypes; }
+        private bool _usesValueTypes = false;
+
         public MssEntityClassFile(MssEntity entity, IEnumerable<MssRelation> relations, SwarmDir dir, string serviceName)
             : base(MssEntity.GetName(entity, serviceName), dir)
         {
@@ -37,13 +40,13 @@ namespace MssBuilder
             Indent(PROPERTY_INDENTATION_LEVEL);
 
             AddPropertiesWithRelations(fieldsWithRelation, relations);
-            bool usesValueTypes = AddPropertiesWithoutRelations(fieldsWithoutRelation);
+            _usesValueTypes = AddPropertiesWithoutRelations(fieldsWithoutRelation);
 
             ClearIndentation();
 
             Append(EntityTemplate.RenderFooter());
 
-            if (usesValueTypes)
+            if (_usesValueTypes)
             {
                 PrependLine(UsingTemplate.Render(MssValueTypeProject.ProjectName) + "\n");
             }
