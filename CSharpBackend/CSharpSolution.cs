@@ -113,33 +113,33 @@ namespace CSharpBackend
         {
             AppendLine("Global");
             Indent();
-            AppendLine("    GlobalSection(SolutionConfigurationPlatforms) = preSolution");
+            AppendLine("GlobalSection(SolutionConfigurationPlatforms) = preSolution");
             Indent();
-            AppendLine("        Debug|Any CPU = Debug|Any CPU");
-            AppendLine("        Release|Any CPU = Release|Any CPU");
+            AppendLine("Debug|Any CPU = Debug|Any CPU");
+            AppendLine("Release|Any CPU = Release|Any CPU");
             UnIndent();
-            AppendLine("    EndGlobalSection");
-            AppendLine("    GlobalSection(ProjectConfigurationPlatforms) = postSolution");
+            AppendLine("EndGlobalSection");
+            AppendLine("GlobalSection(ProjectConfigurationPlatforms) = postSolution");
             Indent();
             foreach (var project in projects)
             {
-                AppendLine($"        {{{project.Id}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU");
-                AppendLine($"        {{{project.Id}}}.Debug|Any CPU.Build.0 = Debug|Any CPU");
-                AppendLine($"        {{{project.Id}}}.Release|Any CPU.ActiveCfg = Release|Any CPU");
-                AppendLine($"        {{{project.Id}}}.Release|Any CPU.Build.0 = Release|Any CPU");
+                AppendLine($"{{{project.Id}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU");
+                AppendLine($"{{{project.Id}}}.Debug|Any CPU.Build.0 = Debug|Any CPU");
+                AppendLine($"{{{project.Id}}}.Release|Any CPU.ActiveCfg = Release|Any CPU");
+                AppendLine($"{{{project.Id}}}.Release|Any CPU.Build.0 = Release|Any CPU");
             }
             UnIndent();
-            AppendLine("    EndGlobalSection");
-            AppendLine("    GlobalSection(SolutionProperties) = preSolution");
+            AppendLine("EndGlobalSection");
+            AppendLine("GlobalSection(SolutionProperties) = preSolution");
             Indent();
-            AppendLine("        HideSolutionNode = FALSE");
+            AppendLine("HideSolutionNode = FALSE");
             UnIndent();
-            AppendLine("    EndGlobalSection");
-            AppendLine("    GlobalSection(ExstensibilityGlobals) = postSolution");
+            AppendLine("EndGlobalSection");
+            AppendLine("GlobalSection(ExstensibilityGlobals) = postSolution");
             Indent();
-            AppendLine($"        SolutionGuid = {{{Guid.NewGuid()}}}");
+            AppendLine($"SolutionGuid = {{{Guid.NewGuid()}}}");
             UnIndent();
-            AppendLine("    EndGlobalSection");
+            AppendLine("EndGlobalSection");
             UnIndent();
             AppendLine("EndGlobal");
         }
