@@ -87,5 +87,78 @@ $$"""
 }
 """;
         }
+
+        public static string RenderEntitySpecHeader(string entityName)
+        {
+            return
+$$"""
+modelBuilder.Entity<{{entityName}}>(entity =>
+{
+""";
+        }
+
+        public static string RenderEntitySpecFooter()
+        {
+            return
+"""
+});
+""";
+        }
+
+        public static string RenderEntityPrimaryKey(string name)
+        {
+            return
+$"""
+entity.HasKey(e => e.{name});
+""";
+        }
+
+        public static string RenderEntityOwns(string name)
+        {
+            return
+$"""
+entity.OwnsOne(e => e.{name});
+""";
+        }
+
+        public static string RenderEntityManyToMany(string name, string otherName)
+        {
+            return
+$"""
+entity.HasMany(e => e.{otherName})
+      .WithMany(o => o.{name})
+      .OnDelete(DeleteBehavior.Restrict);
+""";
+        }
+
+        public static string RenderEntityManyToOne(string name, string otherName)
+        {
+            return
+$"""
+entity.HasMany(e => e.{otherName})
+      .WithOne(o => o.{name})
+      .OnDelete(DeleteBehavior.Restrict);
+""";
+        }
+
+        public static string RenderEntityOneToMany(string name, string otherName)
+        {
+            return
+$"""
+entity.HasOne(e => e.{otherName})
+      .WithMany(o => o.{name})
+      .OnDelete(DeleteBehavior.Restrict);
+""";
+        }
+
+        public static string RenderEntityOneToOne(string name, string otherName)
+        {
+            return
+$"""
+entity.HasOne(e => e.{otherName})
+      .WithOne(o => o.{name})
+      .OnDelete(DeleteBehavior.Restrict);
+""";
+        }
     }
 }

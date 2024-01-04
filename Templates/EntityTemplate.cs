@@ -1,8 +1,8 @@
-namespace CLI.Templates
+namespace MicroSwarm.Templates
 {
     public static class EntityTemplate
     {
-        public static string Render(string namespaceName, string entityName, string properties)
+        public static string RenderHeader(string namespaceName, string entityName)
         {
             return
 $$"""
@@ -10,7 +10,13 @@ namespace {{namespaceName}}
 {
     public class {{entityName}}
     {
-{{properties}}
+""";
+        }
+
+        public static string RenderFooter()
+        {
+            return
+"""
     }
 }
 """;

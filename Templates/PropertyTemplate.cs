@@ -1,4 +1,4 @@
-namespace CLI.Templates
+namespace MicroSwarm.Templates
 {
     public static class PropertyTemplate
     {
@@ -6,7 +6,7 @@ namespace CLI.Templates
         {
             return
 $$"""
-        public {{typeName}} {{propertyName}} { get; set; }
+public {{typeName}} {{propertyName}} { get; set; }
 """;
         }
     }
