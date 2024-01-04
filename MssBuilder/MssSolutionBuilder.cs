@@ -2,7 +2,6 @@
 using Mss;
 using Mss.Types;
 using MssBuilder.Projects;
-using System.Text;
 
 namespace MssBuilder
 {
@@ -29,9 +28,7 @@ namespace MssBuilder
                 }
             }
 
-            MssValueTypeBuilder valueBuilder = new();
-            MssCSharpProject valueTypeProject = valueBuilder.Build(classes, solution.Dir);
-            solution.Add(valueTypeProject);
+            solution.Add(new MssValueTypeProject(classes, solutionDir));
 
             MssServiceBuilder serviceBuilder = new();
             foreach (var service in spec.Services)

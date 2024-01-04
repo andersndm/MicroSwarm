@@ -113,7 +113,7 @@ namespace MssBuilder
             AddProgramClass(builder, "    ");
             builder.AppendLine("}");
 
-            _content = builder.ToString();
+            Append(builder.ToString());
 
             base.Write();
         }

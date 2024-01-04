@@ -9,5 +9,14 @@ namespace Mss
         {
             return Fields.FirstOrDefault(f => f.Name == name);
         }
+
+        public static string GetName(MssEntity entity, string service)
+        {
+            if (entity.Name == "root")
+            {
+                return service + "Root";
+            }
+            return entity.Name;
+        }
     }
 }

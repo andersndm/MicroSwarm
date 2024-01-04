@@ -1,4 +1,4 @@
-namespace CLI.Templates
+namespace MicroSwarm.Templates
 {
     public static class ValueClassTemplate
     {

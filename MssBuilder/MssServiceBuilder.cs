@@ -1,4 +1,3 @@
-using CLI.Templates;
 using MicroSwarm.FileSystem;
 using MicroSwarm.Templates;
 using Mss;
@@ -26,116 +25,6 @@ namespace MssBuilder
             {
                 return entity.Name;
             }
-        }
-
-        private (bool, string) BuildEntityProperties(IEnumerable<MssField> fields)
-        {
-            List<string> properties = [];
-            bool hasValueType = false;
-
-            foreach (var field in fields)
-            {
-                var typeStr = field.Type.ToString();
-                if (field.Type is MssClassType classType)
-                {
-                    hasValueType = true;
-                }
-                else if (field.Type is MssKeyType keyType)
-                {
-                    // Todo: use relations to figure out types
-                    typeStr = "int";
-                }
-                properties.Add(PropertyTemplate.Render(field.Name, typeStr));
-            }
-
-            return (hasValueType, string.Join("\n", properties));
-        }
-
-        private static bool IsFkPkPair(MssType a, MssType b)
-        {
-            if (a is MssKeyType keyA && b is MssKeyType keyB)
-            {
-                if ((keyA.ToString() == "PK" && keyB.ToString() == "FK") ||
-                    (keyA.ToString() == "FK" && keyB.ToString() == "PK"))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private string BuildEntityRelationProperties(MssEntity entity, IEnumerable<MssField> fields,
-                                                     IEnumerable<MssRelation> relations)
-        {
-            List<string> properties = [];
-
-            foreach (var field in fields)
-            {
-                // primary key won't be added if part of a relation, so must be manually added here
-                if (field.Type is MssKeyType && field.Type.ToString() == "PK")
-                {
-                    // Todo could add a to c# string
-                    properties.Add(PropertyTemplate.Render(field.Name, "int"));
-                }
-
-                var rels = relations.Where(r => r.ContainsField(field)).ToList();
-                Debug.Assert(rels.Count > 0);
-                foreach (var rel in rels)
-                {
-                    var toField = rels[0].GetOppositeField(field)!;
-                    var toEntity = rels[0].GetOppositeEntity(entity)!;
-                    var fromRel = rels[0].GetRelation(field)!;
-                    var toRel = rels[0].GetRelation(toField)!;
-
-                    string toEntityName = GetEntityName(toEntity);
-                    Debug.Assert(IsFkPkPair(field.Type, toField.Type));
-
-                    if (toRel.IsMany)
-                    {
-                        properties.Add(PropertyTemplate.Render(toEntityName, $"List<{toEntityName}>"));
-                    }
-                    else
-                    {
-                        properties.Add(PropertyTemplate.Render(toEntityName, toEntityName));
-                    }
-                }
-            }
-            return "\n" + string.Join("\n", properties);
-        }
-
-        private MssCSharpFile BuildEntityFile(MssEntity entity, IEnumerable<MssRelation> relations, SwarmDir projectDir)
-        {
-            string filename = GetEntityName(entity) + ".cs";
-            string nameSpace = _serviceName + "." + ENTITY_FOLDER;
-
-            List<MssField> fieldsWithRelation = [];
-            List<MssField> fieldsWithoutRelation = [];
-            foreach (var field in entity.Fields)
-            {
-                if (relations.Any(r => r.ContainsField(field)))
-                {
-                    fieldsWithRelation.Add(field);
-                }
-                else
-                {
-                    fieldsWithoutRelation.Add(field);
-                }
-            }
-
-            string rel_properties = BuildEntityRelationProperties(entity, fieldsWithRelation, relations);
-
-            (bool usesValueTypes, string properties) = BuildEntityProperties(fieldsWithoutRelation);
-            if (usesValueTypes)
-            {
-                _serviceUsesValueTypes = true;
-            }
-
-            string content = EntityTemplate.Render(nameSpace, GetEntityName(entity), properties + rel_properties);
-            if (usesValueTypes)
-            {
-                content = UsingTemplate.Render(MssValueTypeBuilder.ProjectName) + "\n\n" + content;
-            }
-            return new(filename, projectDir, content);
         }
 
         private string BuildEntityModel(MssEntity entity, IEnumerable<MssRelation> relations)
@@ -166,7 +55,7 @@ namespace MssBuilder
                             var toRel = rel.GetRelation(toField)!;
 
                             string toEntityName = GetEntityName(toEntity);
-                            Debug.Assert(IsFkPkPair(field.Type, toField.Type));
+                            Debug.Assert(field.Type.IsPkFkPair(toField.Type));
 
                             if (toRel.IsMany)
                             {
@@ -213,7 +102,7 @@ namespace MssBuilder
             StringBuilder contentBuilder = new();
             if (_serviceUsesValueTypes)
             {
-                contentBuilder.AppendLine(UsingTemplate.Render(MssValueTypeBuilder.ProjectName));
+                contentBuilder.AppendLine(UsingTemplate.Render(MssValueTypeProject.ProjectName));
             }
             contentBuilder.AppendLine(DbContextTemplate.RenderHeader(projectName, className));
 
@@ -248,19 +137,20 @@ namespace MssBuilder
 
             foreach (var entity in service.Database.Entities)
             {
-                project.AddFile(
-                    BuildEntityFile(entity, service.Database.Relations.Where(r => r.ContainsEntity(entity)), entityDir));
+                var relations = service.Database.Relations.Where(r => r.ContainsEntity(entity));
+                project.AddFile(new MssEntityClassFile(entity, relations, entityDir, _serviceName));
             }
 
-            project.AddFile(
-                BuildEntityFile(service.Database.Root,
-                                service.Database.Relations.Where(r => r.ContainsEntity(service.Database.Root)), entityDir));
+            {
+                var relations = service.Database.Relations.Where(r => r.ContainsEntity(service.Database.Root));
+                project.AddFile(new MssEntityClassFile(service.Database.Root, relations, entityDir, _serviceName));
+            }
 
             project.AddFile(new MssApiProgramFile(_serviceName, project.Dir));
 
             if (_serviceUsesValueTypes)
             {
-                project.AddProjectReference(MssValueTypeBuilder.ProjectName);
+                project.AddProjectReference(MssValueTypeProject.ProjectName);
             }
 
             project.AddFile(BuildDbContext(service.Database, _serviceName, project.Dir));
