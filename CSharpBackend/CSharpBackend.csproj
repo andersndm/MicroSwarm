@@ -11,8 +11,4 @@
     <ProjectReference Include="..\Templates\Templates.csproj" />
     <ProjectReference Include="..\MicroSwarmFileSystem\MicroSwarmFileSystem.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Handlebars.Net" Version="2.1.4" />
-  </ItemGroup>
 </Project>

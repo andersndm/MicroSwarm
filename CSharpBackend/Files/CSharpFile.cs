@@ -1,9 +1,9 @@
 using MicroSwarm.FileSystem;
 using System.Text;
 
-namespace MssBuilder
+namespace CSharpBackend.Files
 {
-    public class MssCSharpFile : SwarmFile
+    public class CSharpFile : SwarmFile
     {
         private readonly StringBuilder _builder = new();
         private int _indent = 0;
@@ -13,8 +13,8 @@ namespace MssBuilder
         protected const int CLASS_MEMBER_INDENT = 2;
         protected const int METHOD_CONTENT_INDENT = 3;
 
-        public MssCSharpFile(string className, SwarmDir dir) : base(className + EXTENSION, dir) { }
-        public MssCSharpFile(string className, SwarmDir dir, string content)
+        public CSharpFile(string className, SwarmDir dir) : base(className + EXTENSION, dir) { }
+        public CSharpFile(string className, SwarmDir dir, string content)
             : base(className + EXTENSION, dir) => _builder.Append(content);
 
         public string Content { get => _builder.ToString(); }

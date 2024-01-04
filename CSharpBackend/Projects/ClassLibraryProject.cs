@@ -1,9 +1,9 @@
 using MicroSwarm.FileSystem;
 using System.Xml.Linq;
 
-namespace MssBuilder.Projects
+namespace CSharpBackend.Projects
 {
-    public class MssClassLibraryProject(string name, SwarmDir solutionDir) : MssCSharpProject(name, solutionDir)
+    public class ClassLibraryProject(string name, SwarmDir solutionDir) : CSharpProject(name, solutionDir)
     {
         protected override string CreateProjectFile()
         {

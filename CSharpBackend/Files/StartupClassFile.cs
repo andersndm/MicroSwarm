@@ -1,9 +1,9 @@
 using MicroSwarm.FileSystem;
 using MicroSwarm.Templates;
 
-namespace MssBuilder
+namespace CSharpBackend.Files
 {
-    public class StartupClassFile : MssCSharpFile
+    public class StartupClassFile : CSharpFile
     {
         public const string CLASS_NAME = "Startup";
 

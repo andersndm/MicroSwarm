@@ -1,7 +1,8 @@
+using CSharpBackend.Files;
 using MicroSwarm.FileSystem;
 using System.Xml.Linq;
 
-namespace MssBuilder.Projects
+namespace CSharpBackend.Projects
 {
     public class ProjectDependency(string name)
     {
@@ -10,7 +11,7 @@ namespace MssBuilder.Projects
                                            new XAttribute("Include", $"..\\{name}\\{name}.csproj"));
     }
 
-    public abstract class MssCSharpProject(string name, SwarmDir solutionDir)
+    public abstract class CSharpProject(string name, SwarmDir solutionDir)
     {
         // solution file uuid for generic c# project/class library
         protected Guid _csharpProjectUUID = new("FAE04EC0-301F-11D3-BF4B-00C04F79EFBC");
@@ -27,7 +28,7 @@ namespace MssBuilder.Projects
 
         public IEnumerable<string> Dependencies { get => _projectReferences.Select(d => d.Name); }
 
-        private readonly List<MssCSharpFile> _files = [];
+        private readonly List<CSharpFile> _files = [];
 
         protected readonly List<ProjectDependency> _projectReferences = [];
         protected readonly List<XElement> _packageReferences = [];
@@ -35,8 +36,8 @@ namespace MssBuilder.Projects
         protected readonly int _dotnet_major_version = 8;
         protected readonly int _dotnet_minor_version = 0;
 
-        public void AddFile(MssCSharpFile file) => _files.Add(file);
-        public void AddFiles(IEnumerable<MssCSharpFile> file) => _files.AddRange(file);
+        public void AddFile(CSharpFile file) => _files.Add(file);
+        public void AddFiles(IEnumerable<CSharpFile> file) => _files.AddRange(file);
 
         public void AddPackageReference(string packageName, string packageVersion)
         {

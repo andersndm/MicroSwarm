@@ -4,9 +4,9 @@ using Mss;
 using Mss.Types;
 using System.Diagnostics;
 
-namespace MssBuilder
+namespace CSharpBackend.Files
 {
-    public class MssDbContextClassFile : MssCSharpFile
+    public class DbContextClassFile : CSharpFile
     {
         private static readonly string _classNameSuffix = "DbContext";
         private readonly string _serviceName;
@@ -73,7 +73,7 @@ namespace MssBuilder
             AppendLine(DbContextTemplate.RenderEntitySpecFooter());
         }
 
-        public MssDbContextClassFile(MssDatabase database, string serviceName, SwarmDir dir, bool usesValueTypes)
+        public DbContextClassFile(MssDatabase database, string serviceName, SwarmDir dir, bool usesValueTypes)
             : base(serviceName + _classNameSuffix, dir)
         {
             _serviceName = serviceName;
@@ -81,7 +81,7 @@ namespace MssBuilder
 
             if (usesValueTypes)
             {
-                AppendLine(UsingTemplate.Render(MssValueTypeProject.ProjectName));
+                AppendLine(UsingTemplate.Render(ValueTypeProject.ProjectName));
             }
             AppendLine(DbContextTemplate.RenderHeader(_serviceName, className));
 

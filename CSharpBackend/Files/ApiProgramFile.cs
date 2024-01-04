@@ -1,14 +1,13 @@
 using MicroSwarm.FileSystem;
 using MicroSwarm.Templates;
-using System.Text;
 
-namespace MssBuilder
+namespace CSharpBackend.Files
 {
-    public class MssApiProgramFile : MssCSharpFile
+    public class ApiProgramFile : CSharpFile
     {
         public const string CLASS_NAME = "Program";
 
-        public MssApiProgramFile(string serviceName, string startupName, SwarmDir dir) : base(CLASS_NAME, dir)
+        public ApiProgramFile(string serviceName, string startupName, SwarmDir dir) : base(CLASS_NAME, dir)
         {
             AppendLine(ProgramTemplate.RenderHeader(serviceName, CLASS_NAME));
             Indentation = CLASS_MEMBER_INDENT;
