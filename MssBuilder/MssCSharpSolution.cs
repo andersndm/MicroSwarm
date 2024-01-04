@@ -1,15 +1,17 @@
 using MicroSwarm.FileSystem;
+using Mss;
+using Mss.Types;
 using MssBuilder.Projects;
 using System.Text;
 
 namespace MssBuilder
 {
-    public class MssCSharpSolution(string name, SwarmDir solutionDir)
+    public class MssCSharpSolution
     {
-        public string Name { get; } = name;
+        public string Name { get; }
         public SwarmDir Dir { get => _dir; }
 
-        private SwarmDir _dir = solutionDir;
+        private readonly SwarmDir _dir;
 
         private readonly List<MssCSharpProject> projects = [];
 
@@ -26,61 +28,129 @@ namespace MssBuilder
         protected readonly string _vsMinVersionPatch = "40291";
         protected readonly string _vsMinVersionSubPatch = "1";
 
+        private readonly StringBuilder _builder = new();
+        private int _indent = 0;
+        private readonly string _singleIndentation = "    ";
+
+        public MssCSharpSolution(string name, SwarmDir dir, MssSpec spec)
+        {
+            Name = name;
+
+            _dir = dir.CreateSub(Name, deleteIfExists: true);
+
+            List<MssClassType> classes = [];
+            List<MssExternType> externs = [];
+            foreach (var type in spec.Types)
+            {
+                if (type is MssClassType classType)
+                {
+                    classes.Add(classType);
+                }
+                if (type is MssExternType externType)
+                {
+                    externs.Add(externType);
+                }
+            }
+
+            Add(new MssValueTypeProject(classes, Dir));
+
+            foreach (var service in spec.Services)
+            {
+                Add(new MssWebApiProject(Dir, service));
+            }
+        }
+
+        private void Indent() => ++_indent;
+        private void UnIndent()
+        {
+            if (_indent > 0)
+            {
+                --_indent;
+            }
+        }
+
+        private void ApplyIndentation()
+        {
+            for (int i = 0; i < _indent; i++)
+            {
+                _builder.Append(_singleIndentation);
+            }
+        }
+
+        private void AppendLine(string line)
+        {
+            var lines = line.Split(Environment.NewLine);
+            foreach (var newline in lines)
+            {
+                ApplyIndentation();
+                _builder.AppendLine(newline);
+            }
+        }
+
         public void Add(MssCSharpProject project)
         {
             projects.Add(project);
         }
 
-        private void WriteGlobalProperties(StringBuilder builder)
+        private void WriteGlobalProperties()
         {
-            builder.AppendLine($"Microsoft Visual Studio Solution File, Format Version {_formatVersionMajor}.{_formatVersionMinor}");
-            builder.AppendLine($"# Visual Studio Version {_vsVersionMajor}");
-            builder.AppendLine($"VisualStudioVersion = {_vsVersionMajor}.{_vsVersionMinor}.{_vsVersionPatch}.{_vsVersionSubPatch}");
-            builder.AppendLine($"MinimumVisualStudioVersion = {_vsMinVersionMajor}.{_vsMinVersionMinor}.{_vsMinVersionPatch}.{_vsMinVersionSubPatch}");
+            AppendLine($"Microsoft Visual Studio Solution File, Format Version {_formatVersionMajor}.{_formatVersionMinor}");
+            AppendLine($"# Visual Studio Version {_vsVersionMajor}");
+            AppendLine($"VisualStudioVersion = {_vsVersionMajor}.{_vsVersionMinor}.{_vsVersionPatch}.{_vsVersionSubPatch}");
+            AppendLine($"MinimumVisualStudioVersion = {_vsMinVersionMajor}.{_vsMinVersionMinor}.{_vsMinVersionPatch}.{_vsMinVersionSubPatch}");
         }
 
-        private void WriteProjectSection(StringBuilder builder)
+        private void WriteProjectSection()
         {
             foreach (var project in projects)
             {
-                builder.AppendLine(@$"Project(""{{{project.TypeGuid}}}"") = ""{project.Name}"", ""{project.Name}\{project.Name}.csproj"", ""{{{project.Id}}}""");
-                builder.AppendLine("EndProject");
+                AppendLine(@$"Project(""{{{project.TypeGuid}}}"") = ""{project.Name}"", ""{project.Name}\{project.Name}.csproj"", ""{{{project.Id}}}""");
+                AppendLine("EndProject");
             }
         }
 
-        private void WriteGlobalSection(StringBuilder builder)
+        private void WriteGlobalSection()
         {
-            builder.AppendLine("Global");
-            builder.AppendLine("    GlobalSection(SolutionConfigurationPlatforms) = preSolution");
-            builder.AppendLine("        Debug|Any CPU = Debug|Any CPU");
-            builder.AppendLine("        Release|Any CPU = Release|Any CPU");
-            builder.AppendLine("    EndGlobalSection");
-            builder.AppendLine("    GlobalSection(ProjectConfigurationPlatforms) = postSolution");
+            AppendLine("Global");
+            Indent();
+            AppendLine("    GlobalSection(SolutionConfigurationPlatforms) = preSolution");
+            Indent();
+            AppendLine("        Debug|Any CPU = Debug|Any CPU");
+            AppendLine("        Release|Any CPU = Release|Any CPU");
+            UnIndent();
+            AppendLine("    EndGlobalSection");
+            AppendLine("    GlobalSection(ProjectConfigurationPlatforms) = postSolution");
+            Indent();
             foreach (var project in projects)
             {
-                builder.AppendLine($"        {{{project.Id}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU");
-                builder.AppendLine($"        {{{project.Id}}}.Debug|Any CPU.Build.0 = Debug|Any CPU");
-                builder.AppendLine($"        {{{project.Id}}}.Release|Any CPU.ActiveCfg = Release|Any CPU");
-                builder.AppendLine($"        {{{project.Id}}}.Release|Any CPU.Build.0 = Release|Any CPU");
+                AppendLine($"        {{{project.Id}}}.Debug|Any CPU.ActiveCfg = Debug|Any CPU");
+                AppendLine($"        {{{project.Id}}}.Debug|Any CPU.Build.0 = Debug|Any CPU");
+                AppendLine($"        {{{project.Id}}}.Release|Any CPU.ActiveCfg = Release|Any CPU");
+                AppendLine($"        {{{project.Id}}}.Release|Any CPU.Build.0 = Release|Any CPU");
             }
-            builder.AppendLine("    EndGlobalSection");
-            builder.AppendLine("    GlobalSection(SolutionProperties) = preSolution");
-            builder.AppendLine("        HideSolutionNode = FALSE");
-            builder.AppendLine("    EndGlobalSection");
-            builder.AppendLine("    GlobalSection(ExstensibilityGlobals) = postSolution");
-            builder.AppendLine($"        SolutionGuid = {{{Guid.NewGuid()}}}");
-            builder.AppendLine("    EndGlobalSection");
-            builder.AppendLine("EndGlobal");
+            UnIndent();
+            AppendLine("    EndGlobalSection");
+            AppendLine("    GlobalSection(SolutionProperties) = preSolution");
+            Indent();
+            AppendLine("        HideSolutionNode = FALSE");
+            UnIndent();
+            AppendLine("    EndGlobalSection");
+            AppendLine("    GlobalSection(ExstensibilityGlobals) = postSolution");
+            Indent();
+            AppendLine($"        SolutionGuid = {{{Guid.NewGuid()}}}");
+            UnIndent();
+            AppendLine("    EndGlobalSection");
+            UnIndent();
+            AppendLine("EndGlobal");
         }
 
         public void Write()
         {
-            StringBuilder solutionBuilder = new();
-            WriteGlobalProperties(solutionBuilder);
-            WriteProjectSection(solutionBuilder);
-            WriteGlobalSection(solutionBuilder);
+            WriteGlobalProperties();
+            WriteProjectSection();
+            WriteGlobalSection();
 
-            _dir.CreateFile(Name + ".sln").Write(solutionBuilder.ToString());
+            _dir.CreateFile(Name + ".sln").Write(_builder.ToString());
 
             foreach (var project in projects)
             {
