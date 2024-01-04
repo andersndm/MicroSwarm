@@ -12,6 +12,8 @@ namespace Mss.Types
             return false;
         }
 
+        public override string ToCSharp() => "int";
+
         public override bool IsPkFkPair(MssType type)
         {
             if (type is MssKeyType keyType)

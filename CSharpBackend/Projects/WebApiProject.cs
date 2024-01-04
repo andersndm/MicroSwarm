@@ -10,13 +10,13 @@ namespace CSharpBackend.Projects
         public override Guid TypeGuid { get => _aspCoreProjectUUID; }
         private const string ENTITY_FOLDER = "Entities";
 
-        public WebApiProject(SwarmDir solutionDir, MssService service) : base(service.Name, solutionDir)
+        public WebApiProject(MssService service, SwarmDir solutionDir) : base(service.Name, solutionDir)
         {
             _useWebSdk = true;
 
             bool serviceUsesValueTypes = false;
 
-            var entityDir = solutionDir.CreateSub(ENTITY_FOLDER);
+            var entityDir = Dir.CreateSub(ENTITY_FOLDER);
 
             foreach (var entity in service.Database.Entities)
             {
@@ -28,10 +28,15 @@ namespace CSharpBackend.Projects
 
             {
                 var relations = service.Database.Relations.Where(r => r.ContainsEntity(service.Database.Root));
-                AddFile(new EntityClassFile(service.Database.Root, relations, entityDir, service.Name));
+                var rootClass = new EntityClassFile(service.Database.Root, relations, entityDir, service.Name);
+                serviceUsesValueTypes |= rootClass.UsesValueTypes;
+                AddFile(rootClass);
             }
 
             AddFile(new DbContextClassFile(service.Database, service.Name, Dir, serviceUsesValueTypes));
+            var aggClass = new AggregateClassFile(service.Name, Dir, service.AggregateFields);
+            serviceUsesValueTypes |= aggClass.UsesValueTypes;
+            AddFile(aggClass);
 
             AddFile(new StartupClassFile(service.Name, Dir));
             AddFile(new ApiProgramFile(service.Name, StartupClassFile.CLASS_NAME, Dir));

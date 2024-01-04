@@ -56,7 +56,7 @@ namespace CSharpBackend
 
             foreach (var service in spec.Services)
             {
-                Add(new WebApiProject(Dir, service));
+                Add(new WebApiProject(service, Dir));
             }
         }
 

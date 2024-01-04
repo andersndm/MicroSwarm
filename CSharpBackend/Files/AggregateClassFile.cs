@@ -2,13 +2,15 @@ using MicroSwarm.FileSystem;
 using MicroSwarm.Templates;
 using Mss;
 using Mss.Types;
-using System.Diagnostics;
 
 namespace CSharpBackend.Files
 {
     public class AggregateClassFile : CSharpFile
     {
         private static readonly string _suffix = "Aggregate";
+
+        public bool UsesValueTypes { get => _usesValueTypes; }
+        private readonly bool _usesValueTypes = false;
 
         public AggregateClassFile(string serviceName, SwarmDir dir, IEnumerable<MssAggregateField> fields)
             : base(GetName(serviceName), dir)
@@ -20,12 +22,20 @@ namespace CSharpBackend.Files
 
             foreach (var field in fields)
             {
-                Debug.Assert(field.Field.Type is MssBuiltInType);
-                AppendLine(PropertyTemplate.Render(field.Field.Name, field.Field.ToString()));
+                if (field.Field.Type is MssClassType)
+                {
+                    _usesValueTypes = true;
+                }
+                AppendLine(PropertyTemplate.Render(field.Field.Name, field.Field.Type.ToCSharp()));
             }
 
             ClearIndentation();
             Append(EntityTemplate.RenderFooter());
+
+            if (_usesValueTypes)
+            {
+                PrependLine(UsingTemplate.Render(ValueTypeProject.ProjectName) + "\n");
+            }
         }
 
         public static string GetName(string serviceName)
