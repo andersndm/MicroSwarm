@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSwarm", "MicroSwarm\Mi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mss", "Mss\Mss.csproj", "{761C8072-E0BF-422E-8038-4FF4A62D4E76}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MssBuilder", "MssBuilder\MssBuilder.csproj", "{F830C751-1278-4152-BBD4-3C665BB41431}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CSharpBackend", "CSharpBackend\CSharpBackend.csproj", "{F830C751-1278-4152-BBD4-3C665BB41431}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MssParser", "MssParser\MssParser.csproj", "{11AD74E3-94C6-4A78-ABC6-693C084D6132}"
 EndProject
@@ -21,8 +21,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSwarmTests", "Tests\MicroSwarmTests\MicroSwarmTests.csproj", "{5D696D9C-B8D1-4B99-B01E-E4B5DC532704}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSwarmFileSystem", "MicroSwarmFileSystem\MicroSwarmFileSystem.csproj", "{960A52BC-21B3-4228-8A5F-9C74F15FCB82}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MssBuilderTests", "Tests\MssBuilderTests\MssBuilderTests.csproj", "{97F20368-68ED-4F58-B303-350A1732D5C8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,17 +56,12 @@ Global
 		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Release|Any CPU.Build.0 = Release|Any CPU
-		{97F20368-68ED-4F58-B303-350A1732D5C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{97F20368-68ED-4F58-B303-350A1732D5C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{97F20368-68ED-4F58-B303-350A1732D5C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{97F20368-68ED-4F58-B303-350A1732D5C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5D696D9C-B8D1-4B99-B01E-E4B5DC532704} = {8DE1FE86-29EE-485D-9AD1-400B9F2B07DE}
-		{97F20368-68ED-4F58-B303-350A1732D5C8} = {8DE1FE86-29EE-485D-9AD1-400B9F2B07DE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC952E60-B653-4394-A26A-443490F07D19}

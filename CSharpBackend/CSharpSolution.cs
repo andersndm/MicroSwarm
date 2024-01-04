@@ -1,19 +1,19 @@
 using MicroSwarm.FileSystem;
 using Mss;
 using Mss.Types;
-using MssBuilder.Projects;
+using CSharpBackend.Projects;
 using System.Text;
 
-namespace MssBuilder
+namespace CSharpBackend
 {
-    public class MssCSharpSolution
+    public class CSharpSolution
     {
         public string Name { get; }
         public SwarmDir Dir { get => _dir; }
 
         private readonly SwarmDir _dir;
 
-        private readonly List<MssCSharpProject> projects = [];
+        private readonly List<CSharpProject> projects = [];
 
         protected readonly string _formatVersionMajor = "12";
         protected readonly string _formatVersionMinor = "00";
@@ -32,7 +32,7 @@ namespace MssBuilder
         private int _indent = 0;
         private readonly string _singleIndentation = "    ";
 
-        public MssCSharpSolution(string name, SwarmDir dir, MssSpec spec)
+        public CSharpSolution(string name, SwarmDir dir, MssSpec spec)
         {
             Name = name;
 
@@ -52,11 +52,11 @@ namespace MssBuilder
                 }
             }
 
-            Add(new MssValueTypeProject(classes, Dir));
+            Add(new ValueTypeProject(classes, Dir));
 
             foreach (var service in spec.Services)
             {
-                Add(new MssWebApiProject(Dir, service));
+                Add(new WebApiProject(Dir, service));
             }
         }
 
@@ -87,7 +87,7 @@ namespace MssBuilder
             }
         }
 
-        public void Add(MssCSharpProject project)
+        public void Add(CSharpProject project)
         {
             projects.Add(project);
         }

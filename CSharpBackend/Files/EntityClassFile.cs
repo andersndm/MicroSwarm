@@ -4,9 +4,9 @@ using Mss;
 using Mss.Types;
 using System.Diagnostics;
 
-namespace MssBuilder
+namespace CSharpBackend.Files
 {
-    public class MssEntityClassFile : MssCSharpFile
+    public class EntityClassFile : CSharpFile
     {
         private readonly MssEntity _entity;
         private readonly string _serviceName;
@@ -14,7 +14,7 @@ namespace MssBuilder
         public bool UsesValueTypes { get => _usesValueTypes; }
         private bool _usesValueTypes = false;
 
-        public MssEntityClassFile(MssEntity entity, IEnumerable<MssRelation> relations, SwarmDir dir, string serviceName)
+        public EntityClassFile(MssEntity entity, IEnumerable<MssRelation> relations, SwarmDir dir, string serviceName)
             : base(MssEntity.GetName(entity, serviceName), dir)
         {
             _serviceName = serviceName;
@@ -47,7 +47,7 @@ namespace MssBuilder
 
             if (_usesValueTypes)
             {
-                PrependLine(UsingTemplate.Render(MssValueTypeProject.ProjectName) + "\n");
+                PrependLine(UsingTemplate.Render(ValueTypeProject.ProjectName) + "\n");
             }
         }
 
