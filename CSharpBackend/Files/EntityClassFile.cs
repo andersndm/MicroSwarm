@@ -42,7 +42,6 @@ namespace CSharpBackend.Files
             _usesValueTypes = AddPropertiesWithoutRelations(fieldsWithoutRelation);
 
             ClearIndentation();
-
             Append(EntityTemplate.RenderFooter());
 
             if (_usesValueTypes)
