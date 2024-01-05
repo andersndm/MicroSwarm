@@ -53,6 +53,7 @@ namespace CSharpBackend
             }
 
             Add(new ValueTypeProject(classes, Dir));
+            Add(new CoreProject(Name, _dir));
 
             foreach (var service in spec.Services)
             {
