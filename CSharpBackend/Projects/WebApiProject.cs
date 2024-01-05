@@ -33,11 +33,12 @@ namespace CSharpBackend.Projects
                 AddFile(rootClass);
             }
 
-            AddFile(new DbContextClassFile(service.Database, service.Name, Dir, serviceUsesValueTypes));
             var aggClass = new AggregateClassFile(service.Name, Dir, service.AggregateFields);
             serviceUsesValueTypes |= aggClass.UsesValueTypes;
             AddFile(aggClass);
 
+            AddFile(new DbContextClassFile(service.Database, service.Name, Dir, serviceUsesValueTypes));
+            AddFile(new ControllerClassFile(service.Name, Dir));
             AddFile(new StartupClassFile(service.Name, Dir));
             AddFile(new ApiProgramFile(service.Name, StartupClassFile.CLASS_NAME, Dir));
 
@@ -46,6 +47,12 @@ namespace CSharpBackend.Projects
                 AddProjectReference(ValueTypeProject.ProjectName);
             }
 
+            // add swagger
+            AddPackageReference("Microsoft.AspNetCore.OpenApi", "8.0.0");
+            AddPackageReference("Swashbuckle.AspNetCore.SwaggerGen", "6.5.0");
+            AddPackageReference("Swashbuckle.AspNetCore.SwaggerUI", "6.5.0");
+
+            // add EF
             AddPackageReference("Microsoft.EntityFrameworkCore", "8.0.0");
             AddPackageReference("Microsoft.EntityFrameworkCore.Design", "8.0.0");
             // Todo: delete, this is for early testing, should use a server!!!

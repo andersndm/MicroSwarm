@@ -23,24 +23,36 @@ namespace {{serviceName}}
 """;
         }
 
-        public static string RenderConfigureServices()
+        public static string RenderConfigureServices(string serviceName)
         {
-            return "public virtual void ConfigureServices(IServiceCollection services) { }";
+            return
+$$"""
+public virtual void ConfigureServices(IServiceCollection services)
+{
+    services.AddControllers();
+    services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen();
+}
+""";
         }
 
-        public static string RenderConfigureHeader()
+        public static string RenderConfigure()
         {
             return
 """
 public virtual void Configure(IApplicationBuilder app)
 {
-""";
-        }
+    // Add Endpoints
+    app.UseRouting();
+    app.UseHttpsRedirection();
+    app.UseEndpoints(e =>
+    {
+        e.MapControllers();
+    });
 
-        public static string RenderConfigureFooter()
-        {
-            return
-"""
+    // Add Swagger
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 """;
         }
