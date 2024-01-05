@@ -7,6 +7,11 @@ namespace Mss.Types
 
         public override bool IsValid => _subType.IsValid;
 
+        public override string ToCSharp()
+        {
+            return "List<" + _subType.ToCSharp() + ">";
+        }
+
         public override bool IsSameType(MssType type)
         {
             if (type is MssListType list)

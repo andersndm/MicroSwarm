@@ -42,7 +42,6 @@ namespace CSharpBackend.Files
             _usesValueTypes = AddPropertiesWithoutRelations(fieldsWithoutRelation);
 
             ClearIndentation();
-
             Append(EntityTemplate.RenderFooter());
 
             if (_usesValueTypes)
@@ -58,9 +57,7 @@ namespace CSharpBackend.Files
                 // primary key won't be added if part of a relation, so must be manually added here
                 if (field.Type is MssKeyType && field.Type.ToString() == "PK")
                 {
-                    // Todo could add a to c# string
-                    AppendLine(PropertyTemplate.Render(field.Name, "int"));
-                    continue;
+                    AppendLine(PropertyTemplate.Render(field.Name, field.Type.ToCSharp()));
                 }
 
                 var rels = relations.Where(r => r.ContainsField(field)).ToList();
@@ -92,16 +89,11 @@ namespace CSharpBackend.Files
             bool usesValueTypes = false;
             foreach (var field in fields)
             {
-                var typeStr = field.Type.ToString();
                 if (field.Type is MssClassType)
                 {
                     usesValueTypes = true;
                 }
-                else if (field.Type is MssKeyType)
-                {
-                    typeStr = "int";
-                }
-                AppendLine(PropertyTemplate.Render(field.Name, typeStr));
+                AppendLine(PropertyTemplate.Render(field.Name, field.Type.ToCSharp()));
             }
             return usesValueTypes;
         }

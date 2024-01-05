@@ -11,7 +11,7 @@ namespace CSharpBackend.Files
         public ValueClassFile(MssClassType valueType, SwarmDir dir) : base(valueType.Name, dir)
         {
             string classContent = ValueClassTemplate.Render(ProjectName, valueType.Name, valueType.Field.Name,
-                                                            valueType.Field.Type.ToString());
+                                                            valueType.Field.Type.ToCSharp());
             Append(classContent);
         }
     }
