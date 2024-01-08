@@ -1,5 +1,6 @@
 using CSharpBackend.Files;
 using MicroSwarm.FileSystem;
+using MicroSwarm.Templates;
 using Mss;
 using System.Xml.Linq;
 
@@ -38,14 +39,35 @@ namespace CSharpBackend.Projects
             AddFile(aggClass);
 
             AddFile(new DbContextClassFile(service.Database, service.Name, Dir, serviceUsesValueTypes));
-            AddFile(new ControllerClassFile(service.Name, Dir));
-            AddFile(new StartupClassFile(service.Name, Dir));
+            AddFile(new ControllerClassFile(solutionDir.Name, service.Name, Dir));
+            AddFile(new StartupClassFile(solutionDir.Name, service.Name, Dir));
             AddFile(new ApiProgramFile(service.Name, StartupClassFile.CLASS_NAME, Dir));
+
+            AddFile(new QueryRootFilterFile(solutionDir.Name, service.Name, Dir, serviceUsesValueTypes));
+
+            var actorDir = Dir.CreateSub("Actors");
+            AddFile(new CSharpFile(service.Name + "ControllerActor", actorDir,
+                                   ControllerActorTemplate.Render(solutionDir.Name, service.Name)));
+            AddFile(new RepositoryActorFile(solutionDir.Name, service, actorDir));
+
+            var cmdActorDir = actorDir.CreateSub("Cmd");
+            AddFile(new CSharpFile("CmdActor", cmdActorDir,
+                                   CmdActorTemplate.Render(solutionDir.Name, service.Name)));
+
+            var queryActorDir = actorDir.CreateSub("Query");
+            AddFile(new CSharpFile("QueryActor", queryActorDir,
+                                   QueryActorTemplate.Render(solutionDir.Name, service.Name)));
+            AddFile(new CSharpFile("QueryFilterCreatorActor", queryActorDir,
+                                   QueryFilterCreatorActorTemplate.Render(solutionDir.Name, service.Name)));
+            AddFile(new CSharpFile("QuerySerializeActor", queryActorDir,
+                                    QuerySerializeActorTemplate.Render(solutionDir.Name, service.Name)));
+            AddFile(new QueryMapperActorFile(solutionDir.Name, service, queryActorDir));
 
             if (serviceUsesValueTypes)
             {
                 AddProjectReference(ValueTypeProject.ProjectName);
             }
+            AddProjectReference(solutionDir.Name + CoreProject.Suffix);
 
             // add swagger
             AddPackageReference("Microsoft.AspNetCore.OpenApi", "8.0.0");

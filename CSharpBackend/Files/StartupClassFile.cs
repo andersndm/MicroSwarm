@@ -7,8 +7,13 @@ namespace CSharpBackend.Files
     {
         public const string CLASS_NAME = "Startup";
 
-        public StartupClassFile(string serviceName, SwarmDir dir) : base(CLASS_NAME, dir)
+        public StartupClassFile(string solutionName, string serviceName, SwarmDir dir) : base(CLASS_NAME, dir)
         {
+            AppendLine(UsingTemplate.Render("Microsoft.EntityFrameworkCore"));
+            AppendLine(UsingTemplate.Render(serviceName + ".Actors"));
+            AppendLine(UsingTemplate.Render(solutionName + "Core.Actors"));
+            AppendLine();
+
             AppendLine(StartupTemplate.RenderHeader(serviceName, CLASS_NAME));
             AppendLine();
 

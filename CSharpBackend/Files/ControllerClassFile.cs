@@ -7,10 +7,10 @@ namespace CSharpBackend.Files
     {
         public const string CLASS_NAME_SUFFIX = "Controller";
 
-        public ControllerClassFile(string serviceName, SwarmDir dir)
+        public ControllerClassFile(string solutionName, string serviceName, SwarmDir dir)
             : base(serviceName + CLASS_NAME_SUFFIX, dir)
         {
-            AppendLine(ControllerTemplate.Render(serviceName, serviceName + CLASS_NAME_SUFFIX));
+            AppendLine(ControllerTemplate.Render(solutionName, serviceName, serviceName + CLASS_NAME_SUFFIX));
         }
     }
 }

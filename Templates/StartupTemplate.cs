@@ -32,6 +32,16 @@ public virtual void ConfigureServices(IServiceCollection services)
     services.AddControllers();
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
+
+    // add actors
+    services.AddSingleton<IActorBridge, ActorService<{{serviceName}}ControllerActor>>();
+    services.AddHostedService(sp => (ActorService<{{serviceName}}ControllerActor>)sp.GetRequiredService<IActorBridge>());
+
+    // add db
+    services.AddDbContext<{{serviceName}}DbContext>(options =>
+    {
+        options.UseInMemoryDatabase("{{serviceName}}");
+    }, contextLifetime: ServiceLifetime.Transient, optionsLifetime: ServiceLifetime.Transient);
 }
 """;
         }

@@ -22,10 +22,12 @@ namespace {{namespaceName}}
 {
     public class {{className}}
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
         public {{fieldTypeName}} {{fieldName}} { get; set; }
 
         public {{className}}() { }
         public {{className}}({{fieldTypeName}} value) => {{fieldName}} = value;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
     }
 }
 """;
