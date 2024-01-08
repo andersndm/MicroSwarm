@@ -10,6 +10,7 @@ namespace {{namespaceName}}
 {
     public class {{entityName}}
     {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
 """;
         }
 
@@ -17,6 +18,7 @@ namespace {{namespaceName}}
         {
             return
 """
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
     }
 }
 """;
