@@ -28,11 +28,7 @@ namespace {{serviceName}}
         public async Task<IActionResult> Cmd([FromBody][Required] JsonDocument jsonData)
         {
             var result = await _bridge.Ask(jsonData);
-            return result.Ok switch
-            {
-                true => Ok(result.Value),
-                false => BadRequest(result.Value),
-            };
+            return ToActionResult(result);
         }
 
         /// <summary>
@@ -46,6 +42,11 @@ namespace {{serviceName}}
         public async Task<IActionResult> Query([FromQuery] string filter)
         {
             var result = await _bridge.Ask(filter);
+            return ToActionResult(result);
+        }
+
+        private static IActionResult ToActionResult(IActorResult result)
+        {
             return result.Ok switch
             {
                 true => Ok(result.Value),
