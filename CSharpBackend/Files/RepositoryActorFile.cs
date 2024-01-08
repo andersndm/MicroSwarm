@@ -14,32 +14,31 @@ namespace CSharpBackend.Files
             : base(CLASS_NAME, dir)
         {
             Append(RepositoryActorTemplate.RenderHeader(solutionName, service.Name));
-            Indentation = METHOD_CONTENT_INDENT;
-            Indent(4);
 
             Append(RepositoryActorTemplate.RenderSetHeader(service.Name));
             foreach (var field in service.Database.Root.Fields)
             {
-                if (field.Type is MssKeyType key && key.ToString() == "FK")
+                if (field.Type is MssKeyType key)
                 {
                     var rels = service.Database.Relations.Where(r => r.ContainsField(field)).ToList();
-                    Debug.Assert(rels.Count == 1);
+                    if (rels.Count > 0)
+                    {
+                        Debug.Assert(rels.Count == 1);
 
-                    var toField = rels[0].GetOppositeField(field)!;
-                    var toEntity = rels[0].GetOppositeEntity(service.Database.Root)!;
-                    var fromRel = rels[0].GetRelation(field)!;
-                    var toRel = rels[0].GetRelation(toField)!;
+                        var toField = rels[0].GetOppositeField(field)!;
+                        var toEntity = rels[0].GetOppositeEntity(service.Database.Root)!;
+                        var fromRel = rels[0].GetRelation(field)!;
+                        var toRel = rels[0].GetRelation(toField)!;
 
-                    string toEntityName = MssEntity.GetName(toEntity, service.Name);
-                    Debug.Assert(field.Type.IsPkFkPair(toField.Type));
+                        string toEntityName = MssEntity.GetName(toEntity, service.Name);
+                        Debug.Assert(field.Type.IsPkFkPair(toField.Type));
 
-                    Append(".Include(r => r." + toEntityName + ")");
-                    // Todo: include toEntity's relations if they do not point back at the root
+                        Append(".Include(r => r." + toEntityName + ")");
+                        // Todo: include toEntity's relations if they do not point back at the root
+                    }
                 }
             }
-            AppendLine(RepositoryActorTemplate.RenderSetFooter());
-
-            ClearIndentation();
+            AppendLine();
             AppendLine(RepositoryActorTemplate.RenderFooter());
         }
     }
