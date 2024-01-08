@@ -208,6 +208,32 @@ namespace Mss.Resolver
                 IsExternToPrimaryKeyConversion(typeB, typeA);
         }
 
+        private bool AggregateTypesAreCompatible(MssType aggType, MssType other)
+        {
+            if (!TypesAreCompatible(aggType, other))
+            {
+                if (other is MssClassType classType && TypesAreCompatible(aggType, classType.Field.Type))
+                {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+
+        private bool IsValidAggregateType(MssType type)
+        {
+            if (type is MssListType listType)
+            {
+                return IsValidAggregateType(listType.SubType);
+            }
+            else if (type == _externKey || _builtInTypes.Contains(type))
+            {
+                return true;
+            }
+            return false;
+        }
+
         private List<MssField> ResolveEntityFields(List<MssEntityPropertyNode> properties, SourceLocation location)
         {
             bool hasPrimaryKey = false;
@@ -250,7 +276,7 @@ namespace Mss.Resolver
             {
                 Errors.Add(new("Aggregate field not found in root: " + aggField.Name, _filename, location));
             }
-            else if (!TypesAreCompatible(aggField.Type, rootField.Type))
+            else if (!AggregateTypesAreCompatible(aggField.Type, rootField.Type))
             {
                 Errors.Add(new("Aggregate field is not the same type as mapped root field: " + aggField.Name, _filename, location));
             }
@@ -317,7 +343,7 @@ namespace Mss.Resolver
                     Errors.Add(new("Aggregate mapping points to non-existent field '" + fieldName + "' in entity: " + entityName, _filename, location));
                     return null;
                 }
-                if (!TypesAreCompatible(list.SubType, field.Type))
+                if (!AggregateTypesAreCompatible(list.SubType, field.Type))
                 {
                     Errors.Add(new("Aggregate field list subtype is not the same type as mapped entity field: " + aggField.Name, _filename, location));
                     return null;
@@ -376,6 +402,11 @@ namespace Mss.Resolver
                 var identifier = prop.Identifier;
                 var type = ResolveType(prop);
                 var field = new MssField(identifier, type);
+
+                if (!IsValidAggregateType(type))
+                {
+                    Errors.Add(new MssError("Aggregate field has invalid type: " + type.ToString(), _filename, prop.Location));
+                }
 
                 // check if there is a direct mapping to a root field
                 if (prop.Access.Count == 2)

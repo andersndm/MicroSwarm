@@ -56,12 +56,12 @@ service Milking {
         Id: EK;
         LivestockId: EK = root.AnimalId.LivestockId;
         MilkContainerId: EK = root.MilkContainerId.MilkContainerId;
-        Milk: Volume;
-        Fat: Nutrient;
-        Lactose: Nutrient;
-        Protein: Nutrient;
-        CellCount: Cells;
-        Viable: Viability;
+        Milk: float;
+        Fat: float;
+        Lactose: float;
+        Protein: float;
+        CellCount: int;
+        Viable: bool;
     }
 }
 
@@ -104,10 +104,10 @@ service LivestockOrder {
 
     aggregate {
         Id: EK;
-        OrderNo: OrderNumber;
+        OrderNo: string;
         StakeholderId: EK = root.CustomerId.StakeholderId;
         LiveStock: List<EK> = Animal.LivestockId;
-        Price: Price;
+        Price: float;
         Payed: bool;
     }
 }

@@ -45,7 +45,7 @@ namespace {{serviceName}}
             return ToActionResult(result);
         }
 
-        private static IActionResult ToActionResult(IActorResult result)
+        private IActionResult ToActionResult(IActorResult result)
         {
             return result.Ok switch
             {
