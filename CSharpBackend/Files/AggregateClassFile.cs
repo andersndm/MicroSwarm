@@ -13,12 +13,12 @@ namespace CSharpBackend.Files
         public bool UsesValueTypes { get => _usesValueTypes; }
         private readonly bool _usesValueTypes = false;
 
-        public AggregateClassFile(string serviceName, SwarmDir dir, IEnumerable<MssAggregateField> fields)
+        public AggregateClassFile(string solutionName, string serviceName, SwarmDir dir, IEnumerable<MssAggregateField> fields)
             : base(GetName(serviceName), dir)
         {
             string name = GetName(serviceName);
 
-            AppendLine(EntityTemplate.RenderHeader(serviceName, name));
+            AppendLine(EntityTemplate.RenderHeader(solutionName, name));
             Indentation = CLASS_MEMBER_INDENT;
 
             foreach (var field in fields)
