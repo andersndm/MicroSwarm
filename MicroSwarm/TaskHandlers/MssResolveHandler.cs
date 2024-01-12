@@ -14,6 +14,7 @@ namespace MicroSwarm.TaskHandlers
                 return IResult.BadResult("No spec nodes supplied");
             }
 
+            /*
             var resolvers = new MssResolver[input.Count()];
             var tasks = new Task[input.Count()];
             for (int i = 0; i < input.Count(); ++i)
@@ -45,6 +46,8 @@ namespace MicroSwarm.TaskHandlers
             }
 
             return _next.Handle(resolvers.Select(r => r.GetSpec()));
+            */
+            return IResult.OkResult("Not implemented");
         }
     }
 }

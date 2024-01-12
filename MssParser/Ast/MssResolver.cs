@@ -8,6 +8,7 @@ namespace Mss.Resolver
 {
     public class MssResolver : IMssAstVisitor
     {
+        /*
         public readonly List<MssError> Errors = [];
 
         private readonly MssInvalidType _invalidType = new();
@@ -663,5 +664,55 @@ namespace Mss.Resolver
         public void Visit(MssIdentifierNode node) { }
         public void Visit(MssClassPropertyNode node) { }
         public void Visit(MssBuiltInTypeNode node) { }
+        */
+        public void Visit(MssSpecNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssSpecListNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssBuiltInTypeNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssServiceNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssRootNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssRootPropertyNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssRootPropertyListNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssRootPropertyTypeNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssListTypeNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Visit(MssIdentifierNode node)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

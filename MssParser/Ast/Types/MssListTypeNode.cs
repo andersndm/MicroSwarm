@@ -4,10 +4,9 @@ using Mss.Ast.Visitor;
 
 namespace Mss.Ast
 {
-    public class MssAggregatePropertyListNode : MssNode
+    public class MssListTypeNode : MssNode
     {
-        public List<MssAggregatePropertyNode> Properties { get; set; } = [];
-
+        public string ContainedType { get; set; } = "";
         public override void Accept(IMssAstVisitor visitor)
         {
             visitor.Visit(this);
@@ -17,17 +16,23 @@ namespace Mss.Ast
         {
             base.Init(context, treeNode);
 
-            foreach (var child in Children)
+            const int EXPECTED_CHILD_COUNT = 1;
+            if (Children.Count == EXPECTED_CHILD_COUNT)
             {
-                if (child is MssAggregatePropertyNode prop)
+                if (Children[0] is MssBuiltInTypeNode containedType)
                 {
-                    Properties.Add(prop);
+                    ContainedType = containedType.Type;
                 }
                 else
                 {
                     throw new InvalidChildTypeException();
                 }
             }
+            else
+            {
+                throw new InvalidChildCountException(EXPECTED_CHILD_COUNT, Children.Count);
+            }
         }
     }
+
 }

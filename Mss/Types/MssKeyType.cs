@@ -6,25 +6,12 @@ namespace Mss.Types
         {
             if (type is MssKeyType key)
             {
-                return ToString() == type.ToString();
+                return ToString() == key.ToString();
             }
 
             return false;
         }
 
         public override string ToCSharp() => "int";
-
-        public override bool IsPkFkPair(MssType type)
-        {
-            if (type is MssKeyType keyType)
-            {
-                if ((ToString() == "PK" && keyType.ToString() == "FK") ||
-                    (ToString() == "FK" && keyType.ToString() == "PK"))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
     }
 }

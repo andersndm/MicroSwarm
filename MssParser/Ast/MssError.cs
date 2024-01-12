@@ -2,28 +2,24 @@ using Irony.Parsing;
 
 namespace Mss.Parsing
 {
-    public class MssError(string msg, string filename, SourceLocation loc)
+    public class MssError(string message, string filename, SourceLocation location)
     {
-        public string Message { get; } = msg;
-        public string Filename { get; } = filename;
-        public SourceLocation Location { get; set; } = loc;
-
         public void Print()
         {
             Console.ForegroundColor = ConsoleColor.Red;
             Console.Write("MssError: ");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(Filename);
+            Console.Write(filename);
             Console.ResetColor();
             Console.Write("(");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(Location.Line + 1);
+            Console.Write(location.Line + 1);
             Console.ResetColor();
             Console.Write(",");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(Location.Column + 1);
+            Console.Write(location.Column + 1);
             Console.ResetColor();
-            Console.WriteLine("): " + Message);
+            Console.WriteLine("): " + message);
         }
     }
 }

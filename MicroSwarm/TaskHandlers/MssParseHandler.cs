@@ -48,8 +48,13 @@ namespace MicroSwarm.TaskHandlers
             {
                 return IResult.BadResult("Parsing had errors.");
             }
+            // Todo: Remove once parsing is working properly!
+            else
+            {
+                return IResult.OkResult("Successfully parsed.");
+            }
 
-            return _next.Handle(tasks.Select(t => t.Result!));
+            // return _next.Handle(tasks.Select(t => t.Result!));
         }
     }
 }

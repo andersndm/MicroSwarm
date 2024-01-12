@@ -9,6 +9,7 @@ namespace MicroSwarm.TaskHandlers
     {
         private readonly SwarmDir _outputDir = outputDir;
 
+        /*
         private static string GetServiceRef(string serviceName) => serviceName.ToLowerInvariant() + "_service";
         private static string GetDbRef(string serviceRef) => serviceRef + "_db";
         private static string GetEntityRef(string dbRef, string entityName) => dbRef + "_" + entityName.ToLowerInvariant();
@@ -194,6 +195,7 @@ namespace MicroSwarm.TaskHandlers
 
             return builder.ToString();
         }
+        */
 
         public override IResult Handle(IEnumerable<MssSpec> input)
         {
@@ -202,6 +204,7 @@ namespace MicroSwarm.TaskHandlers
                 return IResult.BadResult("No input MssSpec supplied");
             }
 
+            /*
             var tasks = new Task[input.Count()];
             for (int i = 0; i < input.Count(); ++i)
             {
@@ -216,6 +219,7 @@ namespace MicroSwarm.TaskHandlers
             }
 
             Task.WhenAll(tasks).Wait();
+            */
 
             return IResult.OkResult("wrote file to ...");
         }

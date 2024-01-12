@@ -4,9 +4,10 @@ using Mss.Ast.Visitor;
 
 namespace Mss.Ast
 {
-    public class MssEntityPropertyTypeNode : MssNode
+    public class MssRootPropertyTypeNode : MssNode
     {
         public string Type { get; set; } = "";
+        public bool IsList { get; set; } = false;
 
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
@@ -16,9 +17,14 @@ namespace Mss.Ast
                 const int EXPECTED_CHILD_COUNT = 1;
                 if (Children.Count == EXPECTED_CHILD_COUNT)
                 {
-                    if (Children[0] is MssIdentifierNode identifier)
+                    if (Children[0] is MssBuiltInTypeNode builtin)
                     {
-                        Type = identifier.Identifier;
+                        Type = builtin.Type;
+                    }
+                    else if (Children[0] is MssListTypeNode list)
+                    {
+                        Type = list.ContainedType;
+                        IsList = true;
                     }
                     else
                     {
