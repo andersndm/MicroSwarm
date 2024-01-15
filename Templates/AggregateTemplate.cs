@@ -1,16 +1,17 @@
 namespace MicroSwarm.Templates
 {
-    public static class EntityTemplate
+    public static class AggregateTemplate
     {
         public static string RenderHeader(string namespaceName, string entityName)
         {
             return
 $$"""
-namespace {{namespaceName}}
+namespace {{namespaceName}}.Aggregates
 {
     public class {{entityName}}
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor.
+        public int Id { get; set; }
 """;
         }
 

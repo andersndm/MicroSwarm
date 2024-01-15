@@ -18,6 +18,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSwarmTests", "Tests\Mi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSwarmFileSystem", "MicroSwarmFileSystem\MicroSwarmFileSystem.csproj", "{960A52BC-21B3-4228-8A5F-9C74F15FCB82}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpBackend", "CSharpBackend\CSharpBackend.csproj", "{87A5CE70-3D9D-4654-9C5B-F56F56895631}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Templates", "Templates\Templates.csproj", "{0A171B64-AD69-425E-BF54-0FF889F3ECE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +48,14 @@ Global
 		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{960A52BC-21B3-4228-8A5F-9C74F15FCB82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87A5CE70-3D9D-4654-9C5B-F56F56895631}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87A5CE70-3D9D-4654-9C5B-F56F56895631}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87A5CE70-3D9D-4654-9C5B-F56F56895631}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87A5CE70-3D9D-4654-9C5B-F56F56895631}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A171B64-AD69-425E-BF54-0FF889F3ECE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A171B64-AD69-425E-BF54-0FF889F3ECE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A171B64-AD69-425E-BF54-0FF889F3ECE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A171B64-AD69-425E-BF54-0FF889F3ECE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

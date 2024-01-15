@@ -2,18 +2,18 @@ namespace MicroSwarm.Templates
 {
     public static class QueryFilterTemplate
     {
-        public static string Render(string solutionName, string serviceName)
+        public static string Render(string solutionName, string serviceName, string rootName)
         {
             return
 $$"""
-using {{serviceName}}.Entities;
+using {{solutionName}}Core.Aggregates;
 using {{solutionName}}Core.Filtering;
 
 namespace {{serviceName}}
 {
-    public class {{serviceName}}Filter : QueryFilter<{{serviceName}}Root>
+    public class {{serviceName}}Filter : QueryFilter<{{rootName}}>
     {
-        public override QueryFilter<{{serviceName}}Root> FromJson(string jsonString)
+        public override QueryFilter<{{rootName}}> FromJson(string jsonString)
         {
             return this;
         }

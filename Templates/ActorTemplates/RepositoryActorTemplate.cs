@@ -2,14 +2,14 @@ namespace MicroSwarm.Templates
 {
     public static class RepositoryActorTemplate
     {
-        public static string RenderHeader(string solutionName, string serviceName)
+        public static string Render(string solutionName, string serviceName, string rootName)
         {
             return
 $$"""
 using Akka.Actor;
-using {{serviceName}}.Entities;
 using Microsoft.EntityFrameworkCore;
 using {{solutionName}}Core.Actors;
+using {{solutionName}}Core.Aggregates;
 
 namespace {{serviceName}}.Actors
 {
@@ -25,31 +25,11 @@ namespace {{serviceName}}.Actors
 
             _queryMapper = Context.ActorOf(Props.Create<QueryMapperActor>(), "query-mapper");
 
-            Receive<Func<{{serviceName}}Root, bool>>(filter =>
+            Receive<Func<{{rootName}}, bool>>(filter =>
             {
                 try
                 {
-
-""";
-        }
-
-        public static string RenderSetHeader(string serviceName)
-        {
-            return
-$"""
-                    var entities = _context.Set<{serviceName}Root>().AsNoTracking()
-""";
-        }
-
-        public static string RenderSetFooter()
-        {
-            return ".Where(filter);";
-        }
-
-        public static string RenderFooter()
-        {
-            return
-"""
+                    var entities = _context.Set<{{rootName}}>().AsNoTracking().Where(filter);
                     var result = _queryMapper.Ask<IActorResult>(entities).Result;
                     Sender.Tell(result);
                 }

@@ -38,21 +38,6 @@ namespace CSharpBackend
 
             _dir = dir.CreateSub(Name, deleteIfExists: true);
 
-            List<MssClassType> classes = [];
-            List<MssExternType> externs = [];
-            foreach (var type in spec.Types)
-            {
-                if (type is MssClassType classType)
-                {
-                    classes.Add(classType);
-                }
-                if (type is MssExternType externType)
-                {
-                    externs.Add(externType);
-                }
-            }
-
-            Add(new ValueTypeProject(classes, Dir));
             Add(new CoreProject(Name, spec, _dir));
 
             foreach (var service in spec.Services)

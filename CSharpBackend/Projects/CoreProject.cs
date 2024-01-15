@@ -14,7 +14,7 @@ namespace CSharpBackend.Projects
             var aggregateDir = Dir.CreateSub("Aggregates", true);
             foreach (var service in spec.Services)
             {
-                var aggClass = new AggregateClassFile(solutionName + Suffix, service.Name, aggregateDir, service.AggregateFields);
+                var aggClass = new AggregateClassFile(solutionName + Suffix, service.Name, aggregateDir, service.Root.Fields);
                 AddFile(aggClass);
             }
 

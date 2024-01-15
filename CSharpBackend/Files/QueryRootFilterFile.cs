@@ -1,4 +1,3 @@
-using CSharpBackend.Projects;
 using MicroSwarm.FileSystem;
 using MicroSwarm.Templates;
 
@@ -6,15 +5,10 @@ namespace CSharpBackend.Files
 {
     public class QueryRootFilterFile : CSharpFile
     {
-        public QueryRootFilterFile(string solutionName, string serviceName, SwarmDir dir, bool usesValues)
+        public QueryRootFilterFile(string solutionName, string serviceName, SwarmDir dir)
             : base(serviceName + "Filter", dir)
         {
-            if (usesValues)
-            {
-                AppendLine(UsingTemplate.Render(ValueTypeProject.ProjectName));
-                AppendLine();
-            }
-            Append(QueryFilterTemplate.Render(solutionName, serviceName));
+            Append(QueryFilterTemplate.Render(solutionName, serviceName, AggregateClassFile.GetName(serviceName)));
         }
     }
 }

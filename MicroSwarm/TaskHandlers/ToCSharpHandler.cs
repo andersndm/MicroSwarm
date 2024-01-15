@@ -1,6 +1,6 @@
 using MicroSwarm.FileSystem;
 using Mss;
-// using CSharpBackend;
+using CSharpBackend;
 
 namespace MicroSwarm.TaskHandlers
 {
@@ -11,8 +11,8 @@ namespace MicroSwarm.TaskHandlers
         public override IResult Handle(MssSpec input)
         {
             // Todo: name for the output? not as simple if allowing multiple files
-            // var solution = new CSharpSolution("swarm", _outDir, input);
-            // solution.Write();
+            var solution = new CSharpSolution("swarm", _outDir, input);
+            solution.Write();
             return IResult.OkResult("Built services");
         }
     }

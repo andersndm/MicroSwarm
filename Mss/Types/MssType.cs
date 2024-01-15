@@ -10,8 +10,6 @@ namespace Mss.Types
         public virtual string ToCSharp() => _identifier;
 
         public virtual bool IsSameType(MssType type) => ToString() == type.ToString();
-
-        public virtual bool IsPkFkPair(MssType type) => false;
     }
 
 }

@@ -44,8 +44,7 @@ namespace MicroSwarm.TaskHandlers
                 return IResult.BadResult("Errors found while resolving");
             }
 
-            // return _next.Handle(resolvers.Select(r => r.GetSpec()));
-            return IResult.OkResult("Not implemented");
+            return _next.Handle(resolvers.Select(r => r.GetSpec()));
         }
     }
 }

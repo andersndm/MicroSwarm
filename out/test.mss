@@ -1,7 +1,7 @@
 service Milking {
     root {
-        LivestockId: EK;
-        MilkContainerId: EK;
+        LivestockId: int;
+        MilkContainerId: int;
         Milk: float;
         Fat: float;
         Lactose: float;
@@ -14,8 +14,8 @@ service Milking {
 service LivestockOrder {
     root {
         OrderNo: string;
-        StakeholderId: EK;
-        LiveStock: List<EK>;
+        StakeholderId: int;
+        LiveStock: List<int>;
         Price: float;
         Payed: bool;
     }

@@ -1,9 +1,7 @@
-using CSharpBackend.Projects;
 using MicroSwarm.FileSystem;
 using MicroSwarm.Templates;
 using Mss;
 using Mss.Types;
-using System.Diagnostics;
 
 namespace CSharpBackend.Files
 {
@@ -11,84 +9,18 @@ namespace CSharpBackend.Files
     {
         private static readonly string _classNameSuffix = "DbContext";
         private readonly string _serviceName;
+        private readonly string _rootName;
 
-        private void AddEntityModel(MssEntity entity, IEnumerable<MssRelation> relations)
-        {
-            string entityName = MssEntity.GetName(entity, _serviceName);
-            AppendLine(DbContextTemplate.RenderEntitySpecHeader(entityName));
-
-            Indent();
-            foreach (var field in entity.Fields)
-            {
-                if (field.Type is MssKeyType keyType && keyType.ToString() == "PK")
-                {
-                    AppendLine(DbContextTemplate.RenderEntityPrimaryKey(field.Name));
-                }
-                else
-                {
-                    var rels = relations.Where(r => r.ContainsField(field));
-                    if (rels.Any())
-                    {
-                        foreach (var rel in rels)
-                        {
-                            var toField = rel.GetOppositeField(field)!;
-                            var toEntity = rel.GetOppositeEntity(entity)!;
-                            var fromRel = rel.GetRelation(field)!;
-                            var toRel = rel.GetRelation(toField)!;
-
-                            string toEntityName = MssEntity.GetName(toEntity, _serviceName);
-                            Debug.Assert(field.Type.IsPkFkPair(toField.Type));
-
-                            if (toRel.IsMany)
-                            {
-                                if (fromRel.IsMany)
-                                {
-                                    AppendLine(DbContextTemplate.RenderEntityManyToMany(entityName, toEntityName));
-                                }
-                                else
-                                {
-                                    AppendLine(DbContextTemplate.RenderEntityManyToOne(entityName, toEntityName));
-                                }
-                            }
-                            else
-                            {
-                                if (fromRel.IsMany)
-                                {
-                                    AppendLine(DbContextTemplate.RenderEntityOneToMany(entityName, toEntityName));
-                                }
-                                else
-                                {
-                                    AppendLine(DbContextTemplate.RenderEntityOneToOne(entityName, toEntityName));
-                                }
-                            }
-                        }
-                    }
-                    // Cannot own a built in type
-                    else if (field.Type is not MssBuiltInType && field.Type is not MssKeyType)
-                    {
-                        AppendLine(DbContextTemplate.RenderEntityOwns(field.Name));
-                    }
-                }
-            }
-            UnIndent();
-            AppendLine(DbContextTemplate.RenderEntitySpecFooter());
-        }
-
-        public DbContextClassFile(MssDatabase database, string serviceName, SwarmDir dir, bool usesValueTypes)
+        public DbContextClassFile(MssRoot root, string solutionName, string serviceName, SwarmDir dir)
             : base(serviceName + _classNameSuffix, dir)
         {
             _serviceName = serviceName;
+            _rootName = AggregateClassFile.GetName(_serviceName);
             string className = _serviceName + _classNameSuffix;
 
-            if (usesValueTypes)
-            {
-                AppendLine(UsingTemplate.Render(ValueTypeProject.ProjectName));
-            }
-            AppendLine(DbContextTemplate.RenderHeader(_serviceName, className));
+            AppendLine(DbContextTemplate.RenderHeader(solutionName, _serviceName, className));
 
-            var entityNames = new List<string> { MssEntity.GetName(database.Root, _serviceName) };
-            entityNames.AddRange(database.Entities.Select(e => e.Name));
-            AppendLine(DbContextTemplate.RenderDbSets(entityNames));
+            AppendLine(DbContextTemplate.RenderDbSets([_rootName]));
 
             AppendLine(DbContextTemplate.RenderConstructor(_serviceName, className));
             AppendLine();
@@ -97,16 +29,30 @@ namespace CSharpBackend.Files
 
             Indentation = METHOD_CONTENT_INDENT;
 
-            AddEntityModel(database.Root, database.Relations.Where(r => r.ContainsEntity(database.Root)));
-            foreach (var entity in database.Entities)
-            {
-                AddEntityModel(entity, database.Relations.Where(r => r.ContainsEntity(entity)));
-            }
+            AddRoot(root);
 
             ClearIndentation();
 
             AppendLine(DbContextTemplate.RenderOnModelCreatingFooter());
             AppendLine(DbContextTemplate.RenderFooter());
+        }
+
+        private void AddRoot(MssRoot root)
+        {
+            AppendLine(DbContextTemplate.RenderEntitySpecHeader(_rootName));
+
+            Indent();
+            // add Id field
+            AppendLine(DbContextTemplate.RenderEntityPrimaryKey("Id"));
+            foreach (var field in root.Fields)
+            {
+                if (field.Type is MssListType)
+                {
+                    AppendLine(DbContextTemplate.RenderEntityOwns(field.Name));
+                }
+            }
+            UnIndent();
+            AppendLine(DbContextTemplate.RenderEntitySpecFooter());
         }
     }
 }

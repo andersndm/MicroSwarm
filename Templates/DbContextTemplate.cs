@@ -4,11 +4,11 @@ namespace MicroSwarm.Templates
 {
     public static class DbContextTemplate
     {
-        public static string RenderHeader(string serviceName, string className)
+        public static string RenderHeader(string solutionName, string serviceName, string className)
         {
             return
 $$"""
-using {{serviceName}}.Entities;
+using {{solutionName}}Core.Aggregates;
 using Microsoft.EntityFrameworkCore;
 
 namespace {{serviceName}}
@@ -118,46 +118,6 @@ entity.HasKey(e => e.{name});
             return
 $"""
 entity.OwnsOne(e => e.{name});
-""";
-        }
-
-        public static string RenderEntityManyToMany(string name, string otherName)
-        {
-            return
-$"""
-entity.HasMany(e => e.{otherName})
-      .WithMany(o => o.{name})
-      .OnDelete(DeleteBehavior.Restrict);
-""";
-        }
-
-        public static string RenderEntityManyToOne(string name, string otherName)
-        {
-            return
-$"""
-entity.HasMany(e => e.{otherName})
-      .WithOne(o => o.{name})
-      .OnDelete(DeleteBehavior.Restrict);
-""";
-        }
-
-        public static string RenderEntityOneToMany(string name, string otherName)
-        {
-            return
-$"""
-entity.HasOne(e => e.{otherName})
-      .WithMany(o => o.{name})
-      .OnDelete(DeleteBehavior.Restrict);
-""";
-        }
-
-        public static string RenderEntityOneToOne(string name, string otherName)
-        {
-            return
-$"""
-entity.HasOne(e => e.{otherName})
-      .WithOne(o => o.{name})
-      .OnDelete(DeleteBehavior.Restrict);
 """;
         }
     }

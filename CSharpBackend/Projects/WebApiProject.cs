@@ -9,37 +9,17 @@ namespace CSharpBackend.Projects
     public class WebApiProject : CSharpProject
     {
         public override Guid TypeGuid { get => _aspCoreProjectUUID; }
-        private const string ENTITY_FOLDER = "Entities";
 
         public WebApiProject(MssService service, SwarmDir solutionDir) : base(service.Name, solutionDir)
         {
             _useWebSdk = true;
 
-            bool serviceUsesValueTypes = false;
-
-            var entityDir = Dir.CreateSub(ENTITY_FOLDER);
-
-            foreach (var entity in service.Database.Entities)
-            {
-                var relations = service.Database.Relations.Where(r => r.ContainsEntity(entity));
-                var entityClass = new EntityClassFile(entity, relations, entityDir, service.Name);
-                serviceUsesValueTypes |= entityClass.UsesValueTypes;
-                AddFile(entityClass);
-            }
-
-            {
-                var relations = service.Database.Relations.Where(r => r.ContainsEntity(service.Database.Root));
-                var rootClass = new EntityClassFile(service.Database.Root, relations, entityDir, service.Name);
-                serviceUsesValueTypes |= rootClass.UsesValueTypes;
-                AddFile(rootClass);
-            }
-
-            AddFile(new DbContextClassFile(service.Database, service.Name, Dir, serviceUsesValueTypes));
+            AddFile(new DbContextClassFile(service.Root, solutionDir.Name, service.Name, Dir));
             AddFile(new ControllerClassFile(solutionDir.Name, service.Name, Dir));
             AddFile(new StartupClassFile(solutionDir.Name, service.Name, Dir));
             AddFile(new ApiProgramFile(service.Name, StartupClassFile.CLASS_NAME, Dir));
 
-            AddFile(new QueryRootFilterFile(solutionDir.Name, service.Name, Dir, serviceUsesValueTypes));
+            AddFile(new QueryRootFilterFile(solutionDir.Name, service.Name, Dir));
 
             var actorDir = Dir.CreateSub("Actors");
             AddFile(new CSharpFile(service.Name + "ControllerActor", actorDir,
@@ -59,10 +39,6 @@ namespace CSharpBackend.Projects
                                     QuerySerializeActorTemplate.Render(solutionDir.Name, service.Name)));
             AddFile(new QueryMapperActorFile(solutionDir.Name, service, queryActorDir));
 
-            if (serviceUsesValueTypes)
-            {
-                AddProjectReference(ValueTypeProject.ProjectName);
-            }
             AddProjectReference(solutionDir.Name + CoreProject.Suffix);
 
             // add swagger
