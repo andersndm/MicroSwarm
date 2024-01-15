@@ -4,11 +4,10 @@ using Mss.Ast.Visitor;
 
 namespace Mss.Ast
 {
-    public class MssDatabaseNode : MssNode
+    public class MssRootNode : MssNode
     {
-        public MssRootNode Root { get; set; } = null!;
-        public List<MssEntityNode> Entities { get; set; } = [];
-        public List<MssRelationNode> Relations { get; set; } = [];
+        public MssRootPropertyListNode PropertyList { get; set; }
+        public List<MssField> Fields { get; set; }
 
         public override void Accept(IMssAstVisitor visitor)
         {
@@ -18,22 +17,13 @@ namespace Mss.Ast
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
             base.Init(context, treeNode);
-            const int EXPECTED_CHILD_COUNT = 2;
+
+            const int EXPECTED_CHILD_COUNT = 1;
             if (Children.Count == EXPECTED_CHILD_COUNT)
             {
-                if (Children[0] is MssRootNode root)
+                if (Children[0] is MssRootPropertyListNode list)
                 {
-                    Root = root;
-                }
-                else
-                {
-                    throw new InvalidChildTypeException();
-                }
-
-                if (Children[1] is MssSchemaListNode schemaList)
-                {
-                    Entities = schemaList.Entities;
-                    Relations = schemaList.Relations;
+                    PropertyList = list;
                 }
                 else
                 {
@@ -44,6 +34,7 @@ namespace Mss.Ast
             {
                 throw new InvalidChildCountException(EXPECTED_CHILD_COUNT, Children.Count);
             }
+            AsString = "Root";
         }
     }
 }

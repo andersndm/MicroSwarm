@@ -8,6 +8,7 @@ namespace MicroSwarm.Templates
 $$"""
 using Akka.Actor;
 using {{serviceName}}.Entities;
+using {{solutionName}}Core;
 using {{solutionName}}Core.Actors;
 
 namespace {{serviceName}}.Actors

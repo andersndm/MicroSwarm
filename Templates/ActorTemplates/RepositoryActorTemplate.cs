@@ -29,12 +29,16 @@ namespace {{serviceName}}.Actors
             {
                 try
                 {
+
 """;
         }
 
         public static string RenderSetHeader(string serviceName)
         {
-            return $"var entities = _context.Set<{serviceName}Root>().AsNoTracking()";
+            return
+$"""
+                    var entities = _context.Set<{serviceName}Root>().AsNoTracking()
+""";
         }
 
         public static string RenderSetFooter()

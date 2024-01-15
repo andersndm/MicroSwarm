@@ -1,12 +1,14 @@
 using Irony.Ast;
 using Irony.Parsing;
 using Mss.Ast.Visitor;
+using Mss.Types;
 
 namespace Mss.Ast
 {
-    public class MssRootNode : MssNode
+    public class MssListTypeNode : MssNode
     {
-        public List<MssEntityPropertyNode> Properties = [];
+        public MssBuiltInTypeNode ContainedTypeNode { get; set; }
+        public MssType? Type { get; set; } = null;
 
         public override void Accept(IMssAstVisitor visitor)
         {
@@ -20,9 +22,9 @@ namespace Mss.Ast
             const int EXPECTED_CHILD_COUNT = 1;
             if (Children.Count == EXPECTED_CHILD_COUNT)
             {
-                if (Children[0] is MssEntityPropertyListNode list)
+                if (Children[0] is MssBuiltInTypeNode containedType)
                 {
-                    Properties = list.Properties;
+                    ContainedTypeNode = containedType;
                 }
                 else
                 {
@@ -33,7 +35,7 @@ namespace Mss.Ast
             {
                 throw new InvalidChildCountException(EXPECTED_CHILD_COUNT, Children.Count);
             }
-            AsString = "Root";
         }
     }
+
 }

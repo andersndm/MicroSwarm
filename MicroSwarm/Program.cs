@@ -102,7 +102,6 @@ namespace MicroSwarm
                     return 1;
                 }
 
-
                 var pipeline = input.ToPuml switch
                 {
                     true => PipelineFactory.CreatePumlPipeline(outputDir),

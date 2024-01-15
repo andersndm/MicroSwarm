@@ -34,10 +34,6 @@ namespace CSharpBackend.Projects
                 AddFile(rootClass);
             }
 
-            var aggClass = new AggregateClassFile(service.Name, Dir, service.AggregateFields);
-            serviceUsesValueTypes |= aggClass.UsesValueTypes;
-            AddFile(aggClass);
-
             AddFile(new DbContextClassFile(service.Database, service.Name, Dir, serviceUsesValueTypes));
             AddFile(new ControllerClassFile(solutionDir.Name, service.Name, Dir));
             AddFile(new StartupClassFile(solutionDir.Name, service.Name, Dir));

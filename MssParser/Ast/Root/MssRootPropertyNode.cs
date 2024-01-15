@@ -1,18 +1,15 @@
 using Irony.Ast;
 using Irony.Parsing;
 using Mss.Ast.Visitor;
+using Mss.Types;
 
 namespace Mss.Ast
 {
-    public class MssClassNode : MssNode
+    public class MssRootPropertyNode : MssNode
     {
         public string Identifier { get; set; } = "";
-        public MssClassPropertyNode Property = null!;
-
-        public override void Accept(IMssAstVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
+        public MssType? Type { get; set; }
+        public MssRootPropertyTypeNode PropertyTypeNode { get; set; }
 
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
@@ -29,9 +26,9 @@ namespace Mss.Ast
                     throw new InvalidChildTypeException();
                 }
 
-                if (Children[1] is MssClassPropertyNode prop)
+                if (Children[1] is MssRootPropertyTypeNode type)
                 {
-                    Property = prop;
+                    PropertyTypeNode = type;
                 }
                 else
                 {
@@ -42,7 +39,12 @@ namespace Mss.Ast
             {
                 throw new InvalidChildCountException(EXPECTED_CHILD_COUNT, Children.Count);
             }
-            AsString = "Class: " + Identifier;
+            AsString = "EntityPropertyNode: " + Identifier;
+        }
+
+        public override void Accept(IMssAstVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }
