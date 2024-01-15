@@ -20,7 +20,6 @@ namespace Mss.Resolver
             new MssBuiltInType("float"),
             new MssBuiltInType("bool"),
             new MssBuiltInType("string"),
-            new MssBuiltInType("EK")
         ];
         private readonly List<MssListType> _listTypes = [];
 

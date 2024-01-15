@@ -12,5 +12,4 @@ namespace Mss.Types
             return false;
         }
     }
-
 }
