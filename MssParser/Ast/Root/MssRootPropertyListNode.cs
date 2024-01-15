@@ -7,6 +7,7 @@ namespace Mss.Ast
     public class MssRootPropertyListNode : MssNode
     {
         public readonly List<MssRootPropertyNode> Properties = [];
+        public readonly List<MssField> Fields = [];
 
         public override void Accept(IMssAstVisitor visitor)
         {

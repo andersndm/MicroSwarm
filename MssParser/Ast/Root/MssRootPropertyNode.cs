@@ -1,13 +1,15 @@
 using Irony.Ast;
 using Irony.Parsing;
 using Mss.Ast.Visitor;
+using Mss.Types;
 
 namespace Mss.Ast
 {
     public class MssRootPropertyNode : MssNode
     {
         public string Identifier { get; set; } = "";
-        public string Type { get; set; } = "";
+        public MssType? Type { get; set; }
+        public MssRootPropertyTypeNode PropertyTypeNode { get; set; }
 
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
@@ -26,7 +28,7 @@ namespace Mss.Ast
 
                 if (Children[1] is MssRootPropertyTypeNode type)
                 {
-                    Type = type.Type;
+                    PropertyTypeNode = type;
                 }
                 else
                 {

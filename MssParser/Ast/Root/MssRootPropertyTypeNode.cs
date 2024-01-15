@@ -1,13 +1,15 @@
 using Irony.Ast;
 using Irony.Parsing;
 using Mss.Ast.Visitor;
+using Mss.Types;
 
 namespace Mss.Ast
 {
     public class MssRootPropertyTypeNode : MssNode
     {
-        public string Type { get; set; } = "";
-        public bool IsList { get; set; } = false;
+        public MssBuiltInTypeNode? BuiltInType { get; set; } = null;
+        public MssListTypeNode? ListType { get; set; } = null;
+        public MssType? Type { get; set; } = null;
 
         public override void Init(AstContext context, ParseTreeNode treeNode)
         {
@@ -19,12 +21,11 @@ namespace Mss.Ast
                 {
                     if (Children[0] is MssBuiltInTypeNode builtin)
                     {
-                        Type = builtin.Type;
+                        BuiltInType = builtin;
                     }
                     else if (Children[0] is MssListTypeNode list)
                     {
-                        Type = list.ContainedType;
-                        IsList = true;
+                        ListType = list;
                     }
                     else
                     {
@@ -39,8 +40,7 @@ namespace Mss.Ast
             else
             {
                 Token = treeNode.ChildNodes[0].Token;
-                Type = Token.Text;
-                AsString = "EntityPropertyType: " + Token.Text;
+                AsString = "RootPropertyType: " + Token.Text;
             }
         }
 

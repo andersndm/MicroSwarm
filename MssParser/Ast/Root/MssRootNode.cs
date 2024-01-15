@@ -6,8 +6,8 @@ namespace Mss.Ast
 {
     public class MssRootNode : MssNode
     {
-        public List<MssRootPropertyNode> Properties { get => _properties; }
-        private List<MssRootPropertyNode> _properties = [];
+        public MssRootPropertyListNode PropertyList { get; set; }
+        public List<MssField> Fields { get; set; }
 
         public override void Accept(IMssAstVisitor visitor)
         {
@@ -23,7 +23,7 @@ namespace Mss.Ast
             {
                 if (Children[0] is MssRootPropertyListNode list)
                 {
-                    _properties = list.Properties;
+                    PropertyList = list;
                 }
                 else
                 {

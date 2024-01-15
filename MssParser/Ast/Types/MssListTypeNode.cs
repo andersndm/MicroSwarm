@@ -1,12 +1,15 @@
 using Irony.Ast;
 using Irony.Parsing;
 using Mss.Ast.Visitor;
+using Mss.Types;
 
 namespace Mss.Ast
 {
     public class MssListTypeNode : MssNode
     {
-        public string ContainedType { get; set; } = "";
+        public MssBuiltInTypeNode ContainedTypeNode { get; set; }
+        public MssType? Type { get; set; } = null;
+
         public override void Accept(IMssAstVisitor visitor)
         {
             visitor.Visit(this);
@@ -21,7 +24,7 @@ namespace Mss.Ast
             {
                 if (Children[0] is MssBuiltInTypeNode containedType)
                 {
-                    ContainedType = containedType.Type;
+                    ContainedTypeNode = containedType;
                 }
                 else
                 {
